@@ -1,0 +1,27 @@
+{
+  "name": "sports-reconnect-monorepo",
+  "version": "1.0.0",
+  "description": "Sports Reconnect – Dynamic Certificate Generator (Monorepo)",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install || true"
+  },
+  "workspaces": {
+    "packages": [
+      "frontend",
+      "backend"
+    ],
+    "nohoist": []
+  },
+  "keywords": [
+    "certificate",
+    "generator",
+    "react",
+    "vite"
+  ],
+  "author": "Aryan & teammates",
+  "license": "MIT"
+}
