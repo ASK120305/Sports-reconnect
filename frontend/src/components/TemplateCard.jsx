@@ -1,10 +1,4 @@
-import { Template } from '../types';
-
-interface Props {
-  template: Template;
-}
-
-const TemplateCard = ({ template }: Props) => {
+const TemplateCard = ({ template }) => {
   return (
     <div className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
       <div className="aspect-[4/3] overflow-hidden">

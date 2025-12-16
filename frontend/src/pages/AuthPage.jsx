@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { Chrome, Github } from 'lucide-react';
 
 const AuthPage = () => {
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [mode, setMode] = useState('login');
   const navigate = useNavigate();
 
   const toggleMode = () => setMode((prev) => (prev === 'login' ? 'signup' : 'login'));
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
     navigate('/landing');
   };

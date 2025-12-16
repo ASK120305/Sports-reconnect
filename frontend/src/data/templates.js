@@ -1,6 +1,4 @@
-import { Template } from '../types';
-
-export const templates: Template[] = [
+export const templates = [
   {
     id: 'aurora-edge',
     title: 'Aurora Edge',
