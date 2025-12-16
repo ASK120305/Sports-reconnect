@@ -83,6 +83,7 @@ const LandingPage = () => {
             ))}
           </div>
         </section>
+
       </div>
     </div>
   );
