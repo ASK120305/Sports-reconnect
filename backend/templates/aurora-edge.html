@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Certificate of Achievement - Aurora Edge</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #0b1620;
+      }
+
+      .certificate-wrapper {
+        width: 1123px;
+        height: 794px;
+        padding: 48px 64px;
+        margin: 0 auto;
+        background: radial-gradient(circle at 10% 20%, #04151f, #02070b 55%, #04151f);
+        color: #f9fafb;
+        position: relative;
+      }
+
+      .border-layer {
+        position: absolute;
+        inset: 18px;
+        border-radius: 28px;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(6, 182, 212, 0.65), #0ea5e9);
+        padding: 2px;
+      }
+
+      .inner-card {
+        position: absolute;
+        inset: 1px;
+        border-radius: 26px;
+        background: radial-gradient(circle at 0 0, rgba(45, 212, 191, 0.09), transparent 55%),
+          radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1), transparent 60%), #020617;
+        padding: 40px 56px;
+        box-shadow: 0 40px 120px rgba(15, 23, 42, 0.8);
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
+
+      .brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: #e5e7eb;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .brand-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 20%, #f9fafb, #22c55e);
+        box-shadow: 0 0 18px rgba(45, 212, 191, 0.85);
+      }
+
+      .logo-mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #e5e7eb;
+      }
+
+      .logo-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: conic-gradient(from 200deg, #22c55e, #0ea5e9, #22c55e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+      }
+
+      .logo-icon-inner {
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: radial-gradient(circle at 30% 20%, #f9fafb, #0f172a);
+      }
+
+      .hero-heading {
+        text-align: center;
+        margin-bottom: 34px;
+      }
+
+      .hero-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        color: #a5f3fc;
+        margin-bottom: 10px;
+      }
+
+      .hero-title {
+        font-size: 32px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #f9fafb;
+      }
+
+      .hero-divider {
+        width: 72px;
+        height: 1px;
+        margin: 14px auto 0;
+        background: linear-gradient(to right, transparent, #22c55e, transparent);
+      }
+
+      .subheading {
+        text-align: center;
+        margin-bottom: 26px;
+      }
+
+      .subheading-label {
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 8px;
+      }
+
+      .recipient-name {
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #f9fafb;
+      }
+
+      .highlight-pill {
+        display: inline-flex;
+        margin: 0 auto;
+        margin-top: 10px;
+        padding: 6px 16px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        color: #e5e7eb;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .body-copy {
+        max-width: 640px;
+        margin: 24px auto 40px;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.7;
+        color: #cbd5f5;
+      }
+
+      .body-copy strong {
+        color: #f9fafb;
+        font-weight: 600;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-top: 30px;
+      }
+
+      .meta-col {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #64748b;
+      }
+
+      .meta-value {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #e5e7eb;
+      }
+
+      .signature-block {
+        text-align: right;
+      }
+
+      .signature-line {
+        width: 180px;
+        height: 1px;
+        background: linear-gradient(to right, transparent, rgba(148, 163, 184, 0.6));
+        margin-left: auto;
+        margin-bottom: 10px;
+      }
+
+      .signature-label {
+        font-size: 11px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #64748b;
+      }
+
+      .signature-name {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #e5e7eb;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="certificate-wrapper">
+      <div class="border-layer">
+        <div class="inner-card">
+          <div class="header-row">
+            <div class="brand-badge">
+              <div class="brand-dot"></div>
+              Sports Reconnect · Certificate Studio
+            </div>
+            <div class="logo-mark">
+              <div class="logo-icon">
+                <div class="logo-icon-inner"></div>
+              </div>
+              SPORTS RECONNECT
+            </div>
+          </div>
+
+          <div class="hero-heading">
+            <div class="hero-eyebrow">Official Record</div>
+            <div class="hero-title">Certificate of Achievement</div>
+            <div class="hero-divider"></div>
+          </div>
+
+          <div class="subheading">
+            <div class="subheading-label">This recognition is proudly presented to</div>
+            <div class="recipient-name">{{NAME}}</div>
+            <div class="highlight-pill">For outstanding completion of {{COURSE}}</div>
+          </div>
+
+          <p class="body-copy">
+            This certifies that <strong>{{NAME}}</strong> has successfully completed the program
+            <strong>{{COURSE}}</strong>, demonstrating commitment, discipline, and continuous growth. Issued on
+            <strong>{{DATE}}</strong> by Sports Reconnect as an official record of participation and achievement.
+          </p>
+
+          <div class="meta-row">
+            <div class="meta-col">
+              <span>Date Issued</span>
+              <span class="meta-value">{{DATE}}</span>
+            </div>
+            <div class="meta-col">
+              <span>Certificate ID</span>
+              <span class="meta-value">{{CERT_ID}}</span>
+            </div>
+            <div class="signature-block">
+              <div class="signature-line"></div>
+              <div class="signature-label">Authorized Signature</div>
+              <div class="signature-name">Program Director</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+

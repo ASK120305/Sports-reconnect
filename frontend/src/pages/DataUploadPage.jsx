@@ -2,11 +2,14 @@ import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { Database, Trash2, Upload } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { API_BASE_URL } from '../constants';
 
 const DataUploadPage = () => {
   const [records, setRecords] = useState([]);
   const [fileName, setFileName] = useState('');
   const [uploadError, setUploadError] = useState('');
+  const [generateError, setGenerateError] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('certificateRecipients');
@@ -96,6 +99,59 @@ const DataUploadPage = () => {
     localStorage.removeItem('certificateRecipients');
   };
 
+  const handleGenerateCertificates = async () => {
+    if (!records.length) {
+      setGenerateError('Please upload data before generating certificates.');
+      return;
+    }
+
+    const templateIdFromStorage = (() => {
+      try {
+        return localStorage.getItem('selectedTemplateId');
+      } catch {
+        return null;
+      }
+    })();
+
+    const templateId = templateIdFromStorage || 'aurora-edge';
+
+    setGenerateError('');
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/certificates/generate-bulk`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          templateId,
+          records,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.error || 'Failed to generate certificates.');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'certificates.zip';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Certificate generation failed', error);
+      setGenerateError(error.message || 'Could not generate certificates. Please try again.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface via-[#0b1f24] to-[#041014] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,183,181,0.22),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(1,135,144,0.18),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,84,97,0.28),transparent_25%)]" />
@@ -150,15 +206,26 @@ const DataUploadPage = () => {
                 <span className="text-brand-100">Stored rows: {records.length}</span>
               </div>
               {records.length > 0 && (
-                <button
-                  onClick={handleClear}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-red-400 hover:text-white"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Clear stored data
-                </button>
+                <>
+                  <button
+                    onClick={handleGenerateCertificates}
+                    disabled={isGenerating}
+                    className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/60 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isGenerating ? 'Generating ZIP…' : 'Generate certificates ZIP'}
+                  </button>
+                  <button
+                    onClick={handleClear}
+                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-red-400 hover:text-white"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Clear stored data
+                  </button>
+                </>
               )}
             </div>
+
+            {generateError && <p className="text-sm text-red-300">{generateError}</p>}
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">

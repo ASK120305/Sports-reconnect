@@ -1,52 +1,58 @@
 # Backend – Sports Reconnect Certificate Generator
 
-Backend API for user authentication, certificate generation, template management, and export functionality.
+Node.js/Express backend for bulk certificate generation using HTML templates and Puppeteer.
 
-## Setup Instructions (Coming Soon)
+## Setup
 
-Populate this folder with your backend implementation:
-- **Framework**: Node.js (Express), Python (Django/FastAPI), Go, etc.
-- **Database**: PostgreSQL, MongoDB, or your choice
-- **Authentication**: JWT or OAuth2
-- **Certificate Generation**: Use libraries like `pdfkit`, `html2pdf`, or Cloudinary for image manipulation
+From the monorepo root:
 
-## Example Structure (Node.js/Express)
-
-```
-backend/
-├── src/
-│   ├── routes/
-│   │   ├── auth.js
-│   │   ├── certificates.js
-│   │   └── templates.js
-│   ├── controllers/
-│   ├── models/
-│   ├── middleware/
-│   └── server.js
-├── .env
-├── package.json
-└── README.md
+```bash
+cd backend
+npm install
+npm run dev
 ```
 
-## Environment Variables
+The server listens on port `4000` by default.
 
-```
-DATABASE_URL=postgres://user:password@localhost/sports_reconnect
-JWT_SECRET=your_secret_key_here
-PORT=3001
-NODE_ENV=development
+### Environment variables
+
+Create a `.env` file in `backend/` (optional):
+
+```bash
+PORT=4000
 FRONTEND_URL=http://localhost:5173
 ```
 
-## API Endpoints (Design)
+## Certificate generation flow
 
-- `POST /api/auth/register` – User registration
-- `POST /api/auth/login` – User login
-- `GET /api/templates` – Fetch all templates
-- `POST /api/certificates/generate` – Generate certificate
-- `POST /api/certificates/export` – Export as PDF/PNG
+- HTML templates live in `backend/templates` and use placeholders: `{{NAME}}`, `{{COURSE}}`, `{{DATE}}`, `{{CERT_ID}}`.
+- Excel rows parsed on the frontend are sent as JSON records to the backend.
+- Each row is mapped into the placeholders and rendered to PDF via Puppeteer.
+- All PDFs are zipped and streamed back as a single downloadable ZIP.
 
----
+## API
 
-**Status**: Setup pending  
-**Timeline**: Define based on team roadmap
+### `POST /api/certificates/generate-bulk`
+
+**Body (JSON)**:
+
+```json
+{
+  "templateId": "aurora-edge",
+  "records": [
+    {
+      "Name": "Alex Doe",
+      "Course": "Basketball Coaching 101",
+      "Date": "2025-01-10",
+      "Certificate ID": "SR-001"
+    }
+  ]
+}
+```
+
+The backend is flexible with column names and will try common variants for each placeholder.
+
+**Response**:
+
+- `200 OK` with `application/zip` body containing one PDF per record.
+

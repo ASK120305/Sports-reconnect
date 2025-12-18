@@ -4,6 +4,12 @@ const TemplateCard = ({ template }) => {
   const navigate = useNavigate();
 
   const handleUseTemplate = () => {
+    // Persist selected template so the data page can use it for generation
+    try {
+      localStorage.setItem('selectedTemplateId', template.id);
+    } catch {
+      // ignore storage failures; generation handler will fall back
+    }
     navigate('/data');
   };
 
