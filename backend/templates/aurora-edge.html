@@ -1,287 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Certificate of Achievement - Aurora Edge</title>
+<head>
+    <meta charset="UTF-8">
+    <title>Sports Reconnect - Excellence Award</title>
     <style>
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap');
 
-      body {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #0b1620;
-      }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-      .certificate-wrapper {
-        width: 1123px;
-        height: 794px;
-        padding: 48px 64px;
-        margin: 0 auto;
-        background: radial-gradient(circle at 10% 20%, #04151f, #02070b 55%, #04151f);
-        color: #f9fafb;
-        position: relative;
-      }
+        body {
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
+        }
 
-      .border-layer {
-        position: absolute;
-        inset: 18px;
-        border-radius: 28px;
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.85), rgba(6, 182, 212, 0.65), #0ea5e9);
-        padding: 2px;
-      }
+        .certificate-container {
+            width: 1123px;
+            height: 794px;
+            background: white;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.2);
+        }
 
-      .inner-card {
-        position: absolute;
-        inset: 1px;
-        border-radius: 26px;
-        background: radial-gradient(circle at 0 0, rgba(45, 212, 191, 0.09), transparent 55%),
-          radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.1), transparent 60%), #020617;
-        padding: 40px 56px;
-        box-shadow: 0 40px 120px rgba(15, 23, 42, 0.8);
-      }
+        /* The Blurred Sports Background Grid */
+        .background-grid {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            filter: blur(4px) grayscale(100%);
+            opacity: 0.12; /* Makes it look like a ghosted watermark */
+            z-index: 1;
+        }
 
-      .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-      }
+        .bg-tile {
+            background-size: cover;
+            background-position: center;
+            border: 1px solid #fff;
+        }
 
-      .brand-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 18px;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        color: #e5e7eb;
-        font-size: 11px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-      }
+        /* Gold Frame */
+        .gold-frame {
+            position: absolute;
+            inset: 40px;
+            border: 3px solid #d4af37;
+            z-index: 2;
+            pointer-events: none;
+        }
 
-      .brand-dot {
-        width: 9px;
-        height: 9px;
-        border-radius: 999px;
-        background: radial-gradient(circle at 30% 20%, #f9fafb, #22c55e);
-        box-shadow: 0 0 18px rgba(45, 212, 191, 0.85);
-      }
+        .inner-content {
+            position: relative;
+            z-index: 10;
+            width: 80%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7); /* Slight white wash to keep text readable */
+            padding: 40px;
+            border-radius: 10px;
+        }
 
-      .logo-mark {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 600;
-        font-size: 14px;
-        color: #e5e7eb;
-      }
+        .academy-name {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 5px;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 20px;
+        }
 
-      .logo-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: conic-gradient(from 200deg, #22c55e, #0ea5e9, #22c55e);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
-      }
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: 70px;
+            color: #d4af37;
+            margin-bottom: 0;
+            line-height: 1;
+        }
 
-      .logo-icon-inner {
-        width: 20px;
-        height: 20px;
-        border-radius: 999px;
-        background: radial-gradient(circle at 30% 20%, #f9fafb, #0f172a);
-      }
+        .sub-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            letter-spacing: 4px;
+            color: #1a1a1a;
+            margin-bottom: 40px;
+        }
 
-      .hero-heading {
-        text-align: center;
-        margin-bottom: 34px;
-      }
+        .conferred-text {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+        }
 
-      .hero-eyebrow {
-        font-size: 11px;
-        letter-spacing: 0.28em;
-        text-transform: uppercase;
-        color: #a5f3fc;
-        margin-bottom: 10px;
-      }
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 55px;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #ddd;
+            display: inline-block;
+            padding: 0 40px 10px;
+        }
 
-      .hero-title {
-        font-size: 32px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #f9fafb;
-      }
+        .description {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #444;
+            max-width: 650px;
+            margin: 0 auto 50px;
+        }
 
-      .hero-divider {
-        width: 72px;
-        height: 1px;
-        margin: 14px auto 0;
-        background: linear-gradient(to right, transparent, #22c55e, transparent);
-      }
+        .description strong { color: #d4af37; }
 
-      .subheading {
-        text-align: center;
-        margin-bottom: 26px;
-      }
+        /* Footer Section */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 20px;
+        }
 
-      .subheading-label {
-        font-size: 11px;
-        letter-spacing: 0.24em;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 8px;
-      }
+        .footer-col {
+            width: 200px;
+            border-top: 1px solid #999;
+            padding-top: 10px;
+        }
 
-      .recipient-name {
-        font-size: 28px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #f9fafb;
-      }
+        .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+        }
 
-      .highlight-pill {
-        display: inline-flex;
-        margin: 0 auto;
-        margin-top: 10px;
-        padding: 6px 16px;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        color: #e5e7eb;
-        font-size: 11px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-      }
+        /* Gold Seal */
+        .seal-container {
+            position: relative;
+            margin-top: -30px;
+        }
 
-      .body-copy {
-        max-width: 640px;
-        margin: 24px auto 40px;
-        text-align: center;
-        font-size: 13px;
-        line-height: 1.7;
-        color: #cbd5f5;
-      }
+        .seal {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #fcf6ba 0%, #d4af37 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4);
+            border: 2px solid #fff;
+        }
 
-      .body-copy strong {
-        color: #f9fafb;
-        font-weight: 600;
-      }
-
-      .meta-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-top: 30px;
-      }
-
-      .meta-col {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        font-size: 11px;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        color: #64748b;
-      }
-
-      .meta-value {
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #e5e7eb;
-      }
-
-      .signature-block {
-        text-align: right;
-      }
-
-      .signature-line {
-        width: 180px;
-        height: 1px;
-        background: linear-gradient(to right, transparent, rgba(148, 163, 184, 0.6));
-        margin-left: auto;
-        margin-bottom: 10px;
-      }
-
-      .signature-label {
-        font-size: 11px;
-        letter-spacing: 0.22em;
-        text-transform: uppercase;
-        color: #64748b;
-      }
-
-      .signature-name {
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        color: #e5e7eb;
-        margin-top: 4px;
-      }
+        .seal-text {
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            color: #aa771c;
+            text-align: center;
+            font-weight: bold;
+        }
     </style>
-  </head>
-  <body>
-    <div class="certificate-wrapper">
-      <div class="border-layer">
-        <div class="inner-card">
-          <div class="header-row">
-            <div class="brand-badge">
-              <div class="brand-dot"></div>
-              Sports Reconnect · Certificate Studio
-            </div>
-            <div class="logo-mark">
-              <div class="logo-icon">
-                <div class="logo-icon-inner"></div>
-              </div>
-              SPORTS RECONNECT
-            </div>
-          </div>
+</head>
+<body>
 
-          <div class="hero-heading">
-            <div class="hero-eyebrow">Official Record</div>
-            <div class="hero-title">Certificate of Achievement</div>
-            <div class="hero-divider"></div>
-          </div>
+    <div class="certificate-container">
+        <div class="background-grid">
+            <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1592656675398-db6aa6883eec?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1595435064212-362837f444e2?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1519861531158-286d0a793d9b?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1526676037777-05a232554f77?w=400')"></div> <div class="bg-tile" style="background-image: url('https://images.unsplash.com/photo-1530549387074-dca9927f976e?w=400')"></div> </div>
 
-          <div class="subheading">
-            <div class="subheading-label">This recognition is proudly presented to</div>
-            <div class="recipient-name">{{NAME}}</div>
-            <div class="highlight-pill">For outstanding completion of {{COURSE}}</div>
-          </div>
+        <div class="gold-frame"></div>
 
-          <p class="body-copy">
-            This certifies that <strong>{{NAME}}</strong> has successfully completed the program
-            <strong>{{COURSE}}</strong>, demonstrating commitment, discipline, and continuous growth. Issued on
-            <strong>{{DATE}}</strong> by Sports Reconnect as an official record of participation and achievement.
-          </p>
+        <div class="inner-content">
+            <p class="academy-name">SPORTS RECONNECT ACADEMY</p>
+            
+            <h1 class="main-title">CERTIFICATE</h1>
+            <p class="sub-title">OF ATHLETIC EXCELLENCE</p>
 
-          <div class="meta-row">
-            <div class="meta-col">
-              <span>Date Issued</span>
-              <span class="meta-value">{{DATE}}</span>
+            <p class="conferred-text">This esteemed honor is conferred upon</p>
+            <h2 class="recipient-name">{{NAME}}</h2>
+
+            <p class="description">
+                For successfully completing the rigorous <strong>{{COURSE}}</strong> program, 
+                showcasing outstanding skill, unwavering dedication, and exemplary sportsmanship. 
+                Awarded on this day, <strong>{{DATE}}</strong>, in recognition of their commitment to greatness.
+            </p>
+
+            <div class="footer">
+                <div class="footer-col">
+                    <p style="font-size: 14px;">{{DATE}}</p>
+                    <p class="label">Date of Completion</p>
+                </div>
+
+                <div class="seal-container">
+                    <div class="gold-seal">
+                        <div class="seal">
+                            <span class="seal-text">OFFICIAL<br>ACADEMY<br>SEAL</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-col">
+                    <p style="font-family: 'Playfair Display'; font-size: 16px; font-weight: bold;">Director</p>
+                    <p class="label">Authorized Signature</p>
+                </div>
             </div>
-            <div class="meta-col">
-              <span>Certificate ID</span>
-              <span class="meta-value">{{CERT_ID}}</span>
-            </div>
-            <div class="signature-block">
-              <div class="signature-line"></div>
-              <div class="signature-label">Authorized Signature</div>
-              <div class="signature-name">Program Director</div>
-            </div>
-          </div>
+
+            <p style="margin-top: 40px; font-size: 9px; color: #aaa; letter-spacing: 1px;">
+                CERTIFICATE ID: {{CERT_ID}}
+            </p>
         </div>
-      </div>
     </div>
-  </body>
-</html>
 
+</body>
+</html>
