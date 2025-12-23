@@ -15,11 +15,17 @@ const TemplateCard = ({ template }) => {
 
   return (
     <div className="group relative overflow-hidden rounded-2xl bg-white/5 border border-white/10 backdrop-blur-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-glow">
-      <div className="aspect-[4/3] overflow-hidden">
-        <img
+      <div className="aspect-[4/3] overflow-hidden relative bg-gray-900/20">
+        <iframe
           src={template.image}
-          alt={template.title}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          title={template.title}
+          className="absolute top-0 left-0 border-0 pointer-events-none"
+          style={{ 
+            width: '1123px', 
+            height: '794px',
+            transform: 'scale(0.36)',
+            transformOrigin: 'top left',
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/10 to-brand-500/20 opacity-0 group-hover:opacity-100 transition duration-300" />
       </div>

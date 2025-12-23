@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Participation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;600&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .certificate-container {
+            width: 1123px;
+            height: 794px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Blue wavy decorations at top and bottom */
+        .wavy-decoration-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(180deg, #2d5a7b 0%, #1f4460 100%);
+            clip-path: polygon(
+                0 0, 100% 0, 100% 60%, 
+                95% 65%, 90% 60%, 85% 65%, 80% 60%, 
+                75% 65%, 70% 60%, 65% 65%, 60% 60%,
+                55% 65%, 50% 60%, 45% 65%, 40% 60%,
+                35% 65%, 30% 60%, 25% 65%, 20% 60%,
+                15% 65%, 10% 60%, 5% 65%, 0 60%
+            );
+            z-index: 2;
+        }
+
+        .wavy-decoration-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(0deg, #2d5a7b 0%, #1f4460 100%);
+            clip-path: polygon(
+                0 100%, 100% 100%, 100% 40%,
+                95% 35%, 90% 40%, 85% 35%, 80% 40%,
+                75% 35%, 70% 40%, 65% 35%, 60% 40%,
+                55% 35%, 50% 40%, 45% 35%, 40% 40%,
+                35% 35%, 30% 40%, 25% 35%, 20% 40%,
+                15% 35%, 10% 40%, 5% 35%, 0 40%
+            );
+            z-index: 2;
+        }
+
+        /* Gold accent waves inside blue areas */
+        .gold-wave-top {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(90deg, #d4af37 0%, #f4e5a1 25%, #d4af37 50%, #b8941f 75%, #d4af37 100%);
+            clip-path: polygon(
+                0 50%, 5% 60%, 10% 50%, 15% 60%, 20% 50%,
+                25% 60%, 30% 50%, 35% 60%, 40% 50%, 45% 60%,
+                50% 50%, 55% 60%, 60% 50%, 65% 60%, 70% 50%,
+                75% 60%, 80% 50%, 85% 60%, 90% 50%, 95% 60%,
+                100% 50%, 100% 100%, 0 100%
+            );
+            z-index: 3;
+        }
+
+        .gold-wave-bottom {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(90deg, #d4af37 0%, #f4e5a1 25%, #d4af37 50%, #b8941f 75%, #d4af37 100%);
+            clip-path: polygon(
+                0 50%, 5% 40%, 10% 50%, 15% 40%, 20% 50%,
+                25% 40%, 30% 50%, 35% 40%, 40% 50%, 45% 40%,
+                50% 50%, 55% 40%, 60% 50%, 65% 40%, 70% 50%,
+                75% 40%, 80% 50%, 85% 40%, 90% 50%, 95% 40%,
+                100% 50%, 100% 0, 0 0
+            );
+            z-index: 3;
+        }
+
+        /* Gold ribbon with seal - top left */
+        .ribbon-seal {
+            position: absolute;
+            top: 60px;
+            left: 60px;
+            width: 100px;
+            height: 140px;
+            z-index: 10;
+        }
+
+        .seal-circle {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ffd700 0%, #d4af37 70%, #b8941f 100%);
+            border-radius: 50%;
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .seal-inner {
+            width: 75px;
+            height: 75px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seal-center {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #f4e5a1 100%);
+            border-radius: 50%;
+        }
+
+        .ribbon-tail {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 70px;
+            background: linear-gradient(to bottom, #d4af37, #b8941f);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+        }
+
+        /* Gold corner decorations */
+        .corner-decoration {
+            position: absolute;
+            z-index: 5;
+        }
+
+        .corner-tr {
+            top: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .corner-bl {
+            bottom: 50px;
+            left: 50px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .corner-br {
+            bottom: 50px;
+            right: 50px;
+            width: 100px;
+            height: 100px;
+        }
+
+        .flourish {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+        }
+
+        .flourish-circle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #d4af37;
+            border-radius: 50%;
+        }
+
+        .flourish-circle-1 { top: 0; left: 0; }
+        .flourish-circle-2 { top: 15px; left: 15px; width: 10px; height: 10px; }
+        .flourish-circle-3 { top: 30px; left: 30px; width: 8px; height: 8px; }
+
+        .flourish-leaf {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #d4af37;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(-45deg);
+        }
+
+        .flourish-leaf-1 { top: 8px; left: 8px; }
+        .flourish-leaf-2 { top: 23px; left: 23px; width: 15px; height: 15px; }
+
+        /* Content area */
+        .content-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 700px;
+            text-align: center;
+            z-index: 8;
+        }
+
+        .doc-title {
+            font-family: 'Cinzel', serif;
+            font-size: 80px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            color: #2d5a7b;
+            margin-bottom: 5px;
+        }
+
+        .sub-title {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 6px;
+            color: #2d5a7b;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+        }
+
+        .presented-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .recipient-name {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 62px;
+            font-weight: 600;
+            color: #d4af37;
+            margin-bottom: 15px;
+        }
+
+        .underline {
+            width: 100%;
+            height: 1px;
+            background: #d4af37;
+            margin-bottom: 40px;
+        }
+
+        .course-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 12px;
+            line-height: 2;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+        /* Footer signatures */
+        .signature-area {
+            position: absolute;
+            bottom: 150px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 180px;
+            z-index: 8;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-name {
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            color: #2d5a7b;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .signature-title {
+            font-family: 'Lato', sans-serif;
+            font-size: 11px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="certificate-container">
+        <!-- Blue wavy decorations -->
+        <div class="wavy-decoration-top"></div>
+        <div class="wavy-decoration-bottom"></div>
+
+        <!-- Gold accent waves -->
+        <div class="gold-wave-top"></div>
+        <div class="gold-wave-bottom"></div>
+
+        <!-- Gold ribbon seal -->
+        <div class="ribbon-seal">
+            <div class="seal-circle">
+                <div class="seal-inner">
+                    <div class="seal-center"></div>
+                </div>
+            </div>
+            <div class="ribbon-tail"></div>
+        </div>
+
+        <!-- Corner decorations -->
+        <div class="corner-decoration corner-tr">
+            <div class="flourish">
+                <div class="flourish-circle flourish-circle-1"></div>
+                <div class="flourish-circle flourish-circle-2"></div>
+                <div class="flourish-circle flourish-circle-3"></div>
+                <div class="flourish-leaf flourish-leaf-1"></div>
+                <div class="flourish-leaf flourish-leaf-2"></div>
+            </div>
+        </div>
+
+        <div class="corner-decoration corner-bl">
+            <div class="flourish">
+                <div class="flourish-circle flourish-circle-1"></div>
+                <div class="flourish-circle flourish-circle-2"></div>
+                <div class="flourish-circle flourish-circle-3"></div>
+                <div class="flourish-leaf flourish-leaf-1"></div>
+                <div class="flourish-leaf flourish-leaf-2"></div>
+            </div>
+        </div>
+
+        <div class="corner-decoration corner-br">
+            <div class="flourish">
+                <div class="flourish-circle flourish-circle-1"></div>
+                <div class="flourish-circle flourish-circle-2"></div>
+                <div class="flourish-circle flourish-circle-3"></div>
+                <div class="flourish-leaf flourish-leaf-1"></div>
+                <div class="flourish-leaf flourish-leaf-2"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            <h1 class="doc-title">CERTIFICATE</h1>
+            <p class="sub-title">OF PARTICIPATION</p>
+
+            <p class="presented-text">This certificate is proudly presented to</p>
+            
+            <h2 class="recipient-name">{{NAME}}</h2>
+            <div class="underline"></div>
+
+            <p class="course-text">
+                For successfully completing the {{COURSE}} program. 
+                Your participation and dedication are greatly appreciated.
+            </p>
+        </div>
+
+        <!-- Signature area -->
+        <div class="signature-area">
+            <div class="signature-block">
+                <p class="signature-name">{{DATE}}</p>
+                <p class="signature-title">CEO of Company</p>
+            </div>
+
+            <div class="signature-block">
+                <p class="signature-name">{{CERT_ID}}</p>
+                <p class="signature-title">Head of Event</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

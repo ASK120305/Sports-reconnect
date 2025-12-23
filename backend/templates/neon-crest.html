@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Appreciation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;600&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .certificate-container {
+            width: 1123px;
+            height: 794px;
+            background: linear-gradient(135deg, #2c4661 0%, #1f3344 50%, #162838 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* White content panel */
+        .content-panel {
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            right: 40px;
+            bottom: 40px;
+            background: #ffffff;
+            z-index: 5;
+        }
+
+        /* Gold ornamental corners */
+        .corner-ornament {
+            position: absolute;
+            z-index: 10;
+        }
+
+        /* Top-left ornament */
+        .ornament-tl {
+            top: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+        }
+
+        .swirl-line-tl {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-top: 3px solid #d4af37;
+            border-left: 3px solid #d4af37;
+            border-radius: 8px 0 0 0;
+        }
+
+        .swirl-curve-tl {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #d4af37;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 50% 0 0 0;
+        }
+
+        .flourish-tl-1 {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 20px;
+            height: 20px;
+            background: #d4af37;
+            border-radius: 50% 0 50% 50%;
+            transform: rotate(-45deg);
+        }
+
+        .flourish-tl-2 {
+            position: absolute;
+            top: 35px;
+            left: 35px;
+            width: 15px;
+            height: 15px;
+            background: #d4af37;
+            border-radius: 50% 0 50% 50%;
+            transform: rotate(-45deg);
+        }
+
+        /* Top-right ornament */
+        .ornament-tr {
+            top: 30px;
+            right: 30px;
+            width: 120px;
+            height: 120px;
+            transform: scaleX(-1);
+        }
+
+        /* Bottom-left ornament */
+        .ornament-bl {
+            bottom: 30px;
+            left: 30px;
+            width: 120px;
+            height: 120px;
+            transform: scaleY(-1);
+        }
+
+        /* Bottom-right ornament */
+        .ornament-br {
+            bottom: 30px;
+            right: 30px;
+            width: 120px;
+            height: 120px;
+            transform: scale(-1);
+        }
+
+        /* Content area */
+        .content-area {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 750px;
+            text-align: center;
+            z-index: 8;
+        }
+
+        .doc-title {
+            font-family: 'Cinzel', serif;
+            font-size: 70px;
+            font-weight: 700;
+            letter-spacing: 12px;
+            color: #2c4661;
+            margin-bottom: 8px;
+        }
+
+        .sub-title {
+            font-family: 'Cinzel', serif;
+            font-size: 18px;
+            font-weight: 400;
+            letter-spacing: 6px;
+            color: #2c4661;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+        }
+
+        .presented-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            font-weight: 300;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 60px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+        }
+
+        .underline {
+            width: 100%;
+            height: 1px;
+            background: #ccc;
+            margin-bottom: 40px;
+        }
+
+        .achievement-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 12px;
+            line-height: 2;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto 50px;
+        }
+
+        /* Gold seal at bottom center */
+        .seal-container {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 140px;
+            z-index: 15;
+        }
+
+        .seal-circle {
+            width: 110px;
+            height: 110px;
+            background: radial-gradient(circle, #ffd700 0%, #d4af37 70%, #b8941f 100%);
+            border-radius: 50%;
+            box-shadow: 0 10px 35px rgba(212, 175, 55, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .seal-inner-ring {
+            width: 85px;
+            height: 85px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seal-center {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #fff 0%, #f4e5a1 100%);
+            border-radius: 50%;
+        }
+
+        .seal-ribbons {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .ribbon-strip {
+            width: 25px;
+            height: 60px;
+            background: linear-gradient(to bottom, #d4af37, #b8941f);
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+        }
+
+        /* Signature area */
+        .signature-area {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 200px;
+            z-index: 8;
+        }
+
+        .signature-block {
+            text-align: center;
+        }
+
+        .signature-line {
+            width: 180px;
+            height: 1px;
+            background: #333;
+            margin-bottom: 10px;
+        }
+
+        .signature-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 16px;
+            color: #2c4661;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            font-family: 'Lato', sans-serif;
+            font-size: 10px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-info {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Lato', sans-serif;
+            font-size: 10px;
+            color: #888;
+            z-index: 8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="certificate-container">
+        <!-- White content panel -->
+        <div class="content-panel"></div>
+
+        <!-- Gold ornamental corners -->
+        <div class="corner-ornament ornament-tl">
+            <div class="swirl-line-tl"></div>
+            <div class="swirl-curve-tl"></div>
+            <div class="flourish-tl-1"></div>
+            <div class="flourish-tl-2"></div>
+        </div>
+
+        <div class="corner-ornament ornament-tr">
+            <div class="swirl-line-tl"></div>
+            <div class="swirl-curve-tl"></div>
+            <div class="flourish-tl-1"></div>
+            <div class="flourish-tl-2"></div>
+        </div>
+
+        <div class="corner-ornament ornament-bl">
+            <div class="swirl-line-tl"></div>
+            <div class="swirl-curve-tl"></div>
+            <div class="flourish-tl-1"></div>
+            <div class="flourish-tl-2"></div>
+        </div>
+
+        <div class="corner-ornament ornament-br">
+            <div class="swirl-line-tl"></div>
+            <div class="swirl-curve-tl"></div>
+            <div class="flourish-tl-1"></div>
+            <div class="flourish-tl-2"></div>
+        </div>
+
+        <!-- Seal with ribbons -->
+        <div class="seal-container">
+            <div class="seal-circle">
+                <div class="seal-inner-ring">
+                    <div class="seal-center"></div>
+                </div>
+            </div>
+            <div class="seal-ribbons">
+                <div class="ribbon-strip"></div>
+                <div class="ribbon-strip"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            <h1 class="doc-title">CERTIFICATE</h1>
+            <p class="sub-title">OF APPRECIATION</p>
+
+            <p class="presented-text">This certificate is proudly awarded to</p>
+            
+            <h2 class="recipient-name">{{NAME}}</h2>
+            <div class="underline"></div>
+
+            <p class="achievement-text">
+                This certificate is given to {{NAME}} for his achievement during the month of July 2024. 
+                Hopefully this certificate will be a great motivation.
+            </p>
+        </div>
+
+        <!-- Signature area -->
+        <div class="signature-area">
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <p class="signature-name">Authorized Signature</p>
+                <p class="signature-title">Company President</p>
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-line"></div>
+                <p class="signature-name">Authorized Signature</p>
+                <p class="signature-title">Branch Manager</p>
+            </div>
+        </div>
+
+        <div class="footer-info">CERTIFICATE ID: {{CERT_ID}}</div>
+    </div>
+
+</body>
+</html>

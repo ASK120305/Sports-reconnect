@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Appreciation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;600&family=Lato:wght@300;400;600&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .certificate-container {
+            width: 1123px;
+            height: 794px;
+            background: linear-gradient(135deg, #1a2332 0%, #2d3e50 50%, #1a2332 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Ornamental corners - top left */
+        .ornament-tl {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 180px;
+            height: 180px;
+        }
+
+        .ornament-tr {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 180px;
+            height: 180px;
+        }
+
+        .ornament-bl {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 180px;
+            height: 180px;
+        }
+
+        .ornament-br {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 180px;
+            height: 180px;
+        }
+
+        /* SVG-style ornaments using CSS */
+        .swirl {
+            position: absolute;
+            border: 3px solid #d4af37;
+            border-radius: 50%;
+        }
+
+        /* Top left ornament */
+        .ornament-tl .swirl-1 {
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-right: none;
+            border-bottom: none;
+            border-top-left-radius: 80px;
+        }
+
+        .ornament-tl .swirl-2 {
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-right: none;
+            border-bottom: none;
+            border-width: 2px;
+        }
+
+        .ornament-tl .line-v {
+            position: absolute;
+            left: 0;
+            top: 80px;
+            width: 3px;
+            height: 100px;
+            background: #d4af37;
+        }
+
+        .ornament-tl .line-h {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            width: 100px;
+            height: 3px;
+            background: #d4af37;
+        }
+
+        .ornament-tl .leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #d4af37;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(-45deg);
+        }
+
+        .ornament-tl .leaf-1 { top: 10px; left: 10px; }
+        .ornament-tl .leaf-2 { top: 40px; left: 40px; width: 20px; height: 20px; }
+
+        /* Top right ornament - mirror */
+        .ornament-tr { transform: scaleX(-1); }
+        .ornament-tr .swirl-1 {
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-right: none;
+            border-bottom: none;
+            border: 3px solid #d4af37;
+            border-radius: 80px 0 0 0;
+        }
+
+        .ornament-tr .swirl-2 {
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-right: none;
+            border-bottom: none;
+            border: 2px solid #d4af37;
+            border-radius: 60px 0 0 0;
+        }
+
+        .ornament-tr .line-v {
+            position: absolute;
+            left: 0;
+            top: 80px;
+            width: 3px;
+            height: 100px;
+            background: #d4af37;
+        }
+
+        .ornament-tr .line-h {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            width: 100px;
+            height: 3px;
+            background: #d4af37;
+        }
+
+        .ornament-tr .leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #d4af37;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(-45deg);
+        }
+
+        .ornament-tr .leaf-1 { top: 10px; left: 10px; }
+        .ornament-tr .leaf-2 { top: 40px; left: 40px; width: 20px; height: 20px; }
+
+        /* Bottom left - flip vertical */
+        .ornament-bl { transform: scaleY(-1); }
+        .ornament-bl .swirl-1 {
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-right: none;
+            border-bottom: none;
+            border: 3px solid #d4af37;
+            border-radius: 80px 0 0 0;
+        }
+
+        .ornament-bl .swirl-2 {
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-right: none;
+            border-bottom: none;
+            border: 2px solid #d4af37;
+            border-radius: 60px 0 0 0;
+        }
+
+        .ornament-bl .line-v {
+            position: absolute;
+            left: 0;
+            top: 80px;
+            width: 3px;
+            height: 100px;
+            background: #d4af37;
+        }
+
+        .ornament-bl .line-h {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            width: 100px;
+            height: 3px;
+            background: #d4af37;
+        }
+
+        .ornament-bl .leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #d4af37;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(-45deg);
+        }
+
+        .ornament-bl .leaf-1 { top: 10px; left: 10px; }
+        .ornament-bl .leaf-2 { top: 40px; left: 40px; width: 20px; height: 20px; }
+
+        /* Bottom right - flip both */
+        .ornament-br { transform: scale(-1); }
+        .ornament-br .swirl-1 {
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            border-right: none;
+            border-bottom: none;
+            border: 3px solid #d4af37;
+            border-radius: 80px 0 0 0;
+        }
+
+        .ornament-br .swirl-2 {
+            top: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-right: none;
+            border-bottom: none;
+            border: 2px solid #d4af37;
+            border-radius: 60px 0 0 0;
+        }
+
+        .ornament-br .line-v {
+            position: absolute;
+            left: 0;
+            top: 80px;
+            width: 3px;
+            height: 100px;
+            background: #d4af37;
+        }
+
+        .ornament-br .line-h {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            width: 100px;
+            height: 3px;
+            background: #d4af37;
+        }
+
+        .ornament-br .leaf {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #d4af37;
+            border-radius: 0 100% 0 100%;
+            transform: rotate(-45deg);
+        }
+
+        .ornament-br .leaf-1 { top: 10px; left: 10px; }
+        .ornament-br .leaf-2 { top: 40px; left: 40px; width: 20px; height: 20px; }
+
+        /* White content panel */
+        .content-panel {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg, #fefefe 0%, #ffffff 50%, #f8f8f8 100%);
+            width: 82%;
+            padding: 70px 60px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .doc-title {
+            font-family: 'Cinzel', serif;
+            font-size: 72px;
+            font-weight: 400;
+            color: #1a2332;
+            margin-bottom: 8px;
+            letter-spacing: 12px;
+        }
+
+        .sub-title {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 400;
+            letter-spacing: 6px;
+            color: #1a2332;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+        }
+
+        .presented-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 58px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .description {
+            font-family: 'Lato', sans-serif;
+            font-style: italic;
+            font-size: 12px;
+            line-height: 2;
+            color: #555;
+            max-width: 700px;
+            margin: 20px auto 50px;
+            font-weight: 300;
+        }
+
+        /* Gold seal at bottom */
+        .seal-container {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 120px;
+            z-index: 15;
+        }
+
+        .seal-circle {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #ffd700 0%, #d4af37 60%, #b8941f 100%);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .seal-inner {
+            width: 75px;
+            height: 75px;
+            border: 2px dashed #fff;
+            border-radius: 50%;
+        }
+
+        .seal-ribbons {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+        }
+
+        .ribbon-strip {
+            width: 20px;
+            height: 50px;
+            background: linear-gradient(to bottom, #d4af37, #b8941f);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
+        }
+
+        /* Footer */
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .signature-block {
+            text-align: center;
+            flex: 1;
+        }
+
+        .signature-line {
+            border-top: 2px solid #333;
+            width: 180px;
+            margin: 0 auto 10px;
+        }
+
+        .signature-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 18px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .signature-title {
+            font-family: 'Lato', sans-serif;
+            font-size: 10px;
+            color: #999;
+        }
+
+        .cert-id {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            color: #888;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="certificate-container">
+        <!-- Ornamental corners -->
+        <div class="ornament-tl">
+            <div class="swirl-1"></div>
+            <div class="swirl-2"></div>
+            <div class="line-v"></div>
+            <div class="line-h"></div>
+            <div class="leaf leaf-1"></div>
+            <div class="leaf leaf-2"></div>
+        </div>
+
+        <div class="ornament-tr">
+            <div class="swirl-1"></div>
+            <div class="swirl-2"></div>
+            <div class="line-v"></div>
+            <div class="line-h"></div>
+            <div class="leaf leaf-1"></div>
+            <div class="leaf leaf-2"></div>
+        </div>
+
+        <div class="ornament-bl">
+            <div class="swirl-1"></div>
+            <div class="swirl-2"></div>
+            <div class="line-v"></div>
+            <div class="line-h"></div>
+            <div class="leaf leaf-1"></div>
+            <div class="leaf leaf-2"></div>
+        </div>
+
+        <div class="ornament-br">
+            <div class="swirl-1"></div>
+            <div class="swirl-2"></div>
+            <div class="line-v"></div>
+            <div class="line-h"></div>
+            <div class="leaf leaf-1"></div>
+            <div class="leaf leaf-2"></div>
+        </div>
+
+        <div class="seal-container">
+            <div class="seal-circle">
+                <div class="seal-inner"></div>
+            </div>
+            <div class="seal-ribbons">
+                <div class="ribbon-strip"></div>
+                <div class="ribbon-strip"></div>
+            </div>
+        </div>
+
+        <div class="content-panel">
+            <h1 class="doc-title">CERTIFICATE</h1>
+            <p class="sub-title">OF APPRECIATION</p>
+
+            <p class="presented-text">This certificate is proudly awarded to</p>
+            
+            <h2 class="recipient-name">{{NAME}}</h2>
+
+            <p class="description">
+                This certificate is given to {{NAME}} for his achievement during the month of July 2024. 
+                Hopefully this certificate will be a great motivation.
+            </p>
+
+            <div class="footer">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p class="signature-name">Authorized Signature</p>
+                    <p class="signature-title">Company President</p>
+                </div>
+
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p class="signature-name">Authorized Signature</p>
+                    <p class="signature-title">Branch Manager</p>
+                </div>
+            </div>
+
+            <p class="cert-id">CERTIFICATE ID: {{CERT_ID}}</p>
+        </div>
+    </div>
+
+</body>
+</html>

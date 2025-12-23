@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Certificate of Appreciation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .certificate-container {
+            width: 1123px;
+            height: 794px;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Diagonal blue-gray background element */
+        .diagonal-bg {
+            position: absolute;
+            top: -100px;
+            right: -200px;
+            width: 900px;
+            height: 900px;
+            background: linear-gradient(135deg, #3d5a73 0%, #2d4455 50%, #1f3344 100%);
+            transform: rotate(25deg);
+            z-index: 1;
+        }
+
+        /* Textured gold border */
+        .gold-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 15px solid transparent;
+            border-image: linear-gradient(135deg, #d4af37 0%, #f4e5a1 25%, #d4af37 50%, #b8941f 75%, #d4af37 100%);
+            border-image-slice: 1;
+            z-index: 5;
+        }
+
+        /* Texture overlay for gold border */
+        .gold-border::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border: 15px solid rgba(212, 175, 55, 0.3);
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(244, 229, 161, 0.2) 2px,
+                rgba(244, 229, 161, 0.2) 4px
+            );
+        }
+
+        /* Red ribbon seal - top right */
+        .ribbon-seal {
+            position: absolute;
+            top: 70px;
+            right: 120px;
+            width: 130px;
+            height: 130px;
+            z-index: 10;
+        }
+
+        .seal-outer {
+            width: 130px;
+            height: 130px;
+            background: linear-gradient(135deg, #c41e3a 0%, #a01729 50%, #8b1424 100%);
+            border-radius: 50%;
+            border: 6px solid #d4af37;
+            box-shadow: 0 8px 30px rgba(196, 30, 58, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .seal-middle {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, #f4e5a1 0%, #d4af37 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .seal-inner {
+            width: 75px;
+            height: 75px;
+            background: #c41e3a;
+            border-radius: 50%;
+        }
+
+        /* Ribbon tails */
+        .ribbon-tail {
+            position: absolute;
+            width: 30px;
+            height: 80px;
+            background: linear-gradient(to bottom, #c41e3a, #8b1424);
+            top: 120px;
+        }
+
+        .ribbon-left {
+            left: 25px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            transform: rotate(-15deg);
+        }
+
+        .ribbon-right {
+            right: 25px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%);
+            transform: rotate(15deg);
+        }
+
+        /* Content area */
+        .content-area {
+            position: relative;
+            z-index: 8;
+            padding: 100px 120px 80px 80px;
+            max-width: 650px;
+        }
+
+        .doc-title {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 76px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .sub-title {
+            font-family: 'Bodoni Moda', serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 8px;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        .presented-text {
+            font-family: 'Lato', sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            color: #555;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .recipient-name {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 64px;
+            font-weight: 400;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            line-height: 1;
+        }
+
+        .underline {
+            width: 100%;
+            height: 1px;
+            background: #333;
+            margin-bottom: 40px;
+        }
+
+        .description {
+            font-family: 'Lato', sans-serif;
+            font-size: 12px;
+            line-height: 2;
+            color: #666;
+            margin-bottom: 60px;
+            max-width: 500px;
+        }
+
+        /* Footer signature area */
+        .signature-area {
+            display: flex;
+            gap: 120px;
+            margin-top: 40px;
+        }
+
+        .signature-block {
+            flex: 1;
+        }
+
+        .signature-line {
+            width: 100%;
+            max-width: 200px;
+            height: 1px;
+            background: #333;
+            margin-bottom: 12px;
+        }
+
+        .signature-label {
+            font-family: 'Lato', sans-serif;
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .date-cert-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 80px;
+            right: 80px;
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Lato', sans-serif;
+            font-size: 10px;
+            color: #888;
+            z-index: 8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="certificate-container">
+        <!-- Diagonal background -->
+        <div class="diagonal-bg"></div>
+
+        <!-- Gold textured border -->
+        <div class="gold-border"></div>
+
+        <!-- Red ribbon seal -->
+        <div class="ribbon-seal">
+            <div class="seal-outer">
+                <div class="seal-middle">
+                    <div class="seal-inner"></div>
+                </div>
+            </div>
+            <div class="ribbon-tail ribbon-left"></div>
+            <div class="ribbon-tail ribbon-right"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            <h1 class="doc-title">CERTIFICATE</h1>
+            <p class="sub-title">OF APPRECIATION</p>
+
+            <p class="presented-text">Proudly Presented To</p>
+            
+            <h2 class="recipient-name">{{NAME}}</h2>
+            <div class="underline"></div>
+
+            <p class="description">
+                This certificate is awarded in recognition of outstanding achievement and dedication. 
+                Your commitment and excellence have made a significant impact and deserve this acknowledgment.
+            </p>
+
+            <div class="signature-area">
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p class="signature-label">Date</p>
+                </div>
+
+                <div class="signature-block">
+                    <div class="signature-line"></div>
+                    <p class="signature-label">Signature</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="date-cert-footer">
+            <span>{{DATE}}</span>
+            <span>ID: {{CERT_ID}}</span>
+        </div>
+    </div>
+
+</body>
+</html>
