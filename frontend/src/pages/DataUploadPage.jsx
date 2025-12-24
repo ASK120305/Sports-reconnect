@@ -43,10 +43,10 @@ const DataUploadPage = () => {
         const workbook = XLSX.read(data, { type: 'array', cellDates: true });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
         
-        // Parse with date conversion
+        
         const parsed = XLSX.utils.sheet_to_json(firstSheet, { 
           defval: '',
-          raw: false // This converts dates to strings
+          raw: false 
         });
 
         if (!parsed.length) {
@@ -54,22 +54,22 @@ const DataUploadPage = () => {
           return;
         }
 
-        // Convert any remaining date serial numbers to formatted dates
+        
         const processedRecords = parsed.map((row) => {
           const processedRow = { ...row };
           Object.keys(processedRow).forEach((key) => {
             const value = processedRow[key];
-            // Check if it's a date serial number (Excel dates are typically 1-100000)
+            
             if (typeof value === 'number' && value > 1 && value < 100000) {
-              // Excel date serial number: days since January 1, 1900
-              // JavaScript Date: milliseconds since January 1, 1970
-              // Excel epoch is 25569 days before Unix epoch
-              const excelEpoch = new Date(1899, 11, 30); // December 30, 1899
+              
+              
+              
+              const excelEpoch = new Date(1899, 11, 30); 
               const date = new Date(excelEpoch.getTime() + value * 24 * 60 * 60 * 1000);
               
-              // Check if it's a valid date (not just a regular number)
+              
               if (!isNaN(date.getTime()) && date.getFullYear() > 1900 && date.getFullYear() < 2100) {
-                // Format as YYYY-MM-DD
+                
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
@@ -79,6 +79,10 @@ const DataUploadPage = () => {
           });
           return processedRow;
         });
+
+        console.log('📊 Parsed Excel data:', processedRecords);
+        console.log('📋 Column headers:', Object.keys(processedRecords[0] || {}));
+        console.log(`✅ Loaded ${processedRecords.length} records from ${file.name}`);
 
         setRecords(processedRecords);
         setFileName(file.name);

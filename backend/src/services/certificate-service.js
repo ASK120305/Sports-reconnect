@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import puppeteer from 'puppeteer';
+import { normalizeColumnKeys } from '../utils/normalizeColumnKeys.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -9,19 +10,25 @@ const __dirname = path.dirname(__filename);
 const TEMPLATES_DIR = path.join(__dirname, '..', '..', 'templates');
 
 function mapRowToPlaceholders(row) {
+  const normalizedRow = normalizeColumnKeys(row);
   const get = (...keys) => {
     for (const key of keys) {
-      if (row[key] != null && row[key] !== '') return row[key];
+      if (normalizedRow[key] != null && normalizedRow[key] !== '') return normalizedRow[key];
     }
     return '';
   };
 
-  return {
-    NAME: get('NAME', 'Name', 'Full Name', 'FullName'),
-    COURSE: get('COURSE', 'Course', 'Program'),
-    DATE: get('DATE', 'Date', 'Completion Date'),
-    CERT_ID: get('CERT_ID', 'Certificate ID', 'Cert ID', 'ID'),
+  const placeholders = {
+    NAME: get('NAME', 'Name', 'Full Name', 'FullName', 'name', 'full name', 'fullname', 'Participant Name', 'Student Name', 'Recipient'),
+    COURSE: get('COURSE', 'Course', 'Program', 'course', 'program', 'Event', 'event', 'Sport', 'sport'),
+    DATE: get('DATE', 'Date', 'Completion Date', 'date', 'completion date', 'Issue Date', 'issue date'),
+    CERT_ID: get('CERT_ID', 'Certificate ID', 'Cert ID', 'ID', 'cert_id', 'id', 'CertID'),
   };
+
+  console.log('🔄 Mapping row:', row);
+  console.log('📝 Extracted placeholders:', placeholders);
+
+  return placeholders;
 }
 
 function applyTemplatePlaceholders(templateHtml, placeholders) {
