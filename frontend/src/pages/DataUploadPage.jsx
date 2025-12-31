@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 import { Database, Trash2, Upload } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import TemplateCustomizer from '../components/TemplateCustomizer';
 import { API_BASE_URL } from '../constants';
 
 const DataUploadPage = () => {
@@ -10,6 +11,7 @@ const DataUploadPage = () => {
   const [uploadError, setUploadError] = useState('');
   const [generateError, setGenerateError] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [customization, setCustomization] = useState(null);
 
   useEffect(() => {
     const stored = localStorage.getItem('certificateRecipients');
@@ -131,6 +133,7 @@ const DataUploadPage = () => {
         body: JSON.stringify({
           templateId,
           records,
+          customization: customization || undefined,
         }),
       });
 
@@ -281,6 +284,13 @@ const DataUploadPage = () => {
             </p>
           </div>
         </section>
+
+        {/* Template Customization Section - Separate Row */}
+        {records.length > 0 && (
+          <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-brand-900/30 backdrop-blur-xl">
+            <TemplateCustomizer onCustomizationChange={setCustomization} />
+          </section>
+        )}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/generate-bulk', async (req, res) => {
   try {
-    const { templateId, records } = req.body || {};
+    const { templateId, records, customization } = req.body || {};
 
     if (!templateId) {
       return res.status(400).json({ error: 'templateId is required' });
@@ -35,6 +35,7 @@ router.post('/generate-bulk', async (req, res) => {
       templateId,
       records,
       archive,
+      customization: customization || null,
     });
 
     archive.finalize();
