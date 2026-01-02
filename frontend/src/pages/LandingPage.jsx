@@ -1,9 +1,12 @@
 import { ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import TemplateCard from '../components/TemplateCard';
 import { templates } from '../data/templates';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-surface via-[#0b1f24] to-[#041014] text-white">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,183,181,0.22),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(1,135,144,0.18),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,84,97,0.28),transparent_25%)]" />
@@ -25,7 +28,10 @@ const LandingPage = () => {
                 Start from blank
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <button className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-brand-100 transition hover:border-brand-500/60 hover:text-white">
+              <button
+                onClick={() => navigate('/editor')}
+                className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 font-semibold text-brand-100 transition hover:border-brand-500/60 hover:text-white"
+              >
                 Import your design
               </button>
             </div>

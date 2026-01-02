@@ -339,3 +339,4 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
 };
 
 export default TemplateCustomizer;
+
