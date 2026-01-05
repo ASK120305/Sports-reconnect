@@ -1,18 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Plus, Trash2, Download, FileSpreadsheet, Save, X } from 'lucide-react';
+import { Upload, Plus, Trash2, Download, FileSpreadsheet, Save, X, GripVertical } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import * as XLSX from 'xlsx';
 import { PDFDocument } from 'pdf-lib';
 import JSZip from 'jszip';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const VisualCertificateEditor = () => {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
+  const editorRef = useRef(null);
   const fileInputRef = useRef(null);
   const excelInputRef = useRef(null);
-  const fabricCanvasRef = useRef(null);
-  
+  const backgroundImageRef = useRef(null);
+
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [textFields, setTextFields] = useState([]);
   const [selectedField, setSelectedField] = useState(null);
@@ -21,154 +23,24 @@ const VisualCertificateEditor = () => {
   const [fieldMappings, setFieldMappings] = useState({});
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [dragState, setDragState] = useState(null);
+  const canvasWidth = 1123;
+  const canvasHeight = 794;
 
-  // Initialize Fabric.js canvas
-  useEffect(() => {
-    if (!canvasRef.current) return;
+  const handleFieldReorder = (result) => {
+    if (!result.destination) return;
 
-    const initFabric = async () => {
-      try {
-        const fabricModule = await import('fabric');
-        const fabric = fabricModule.fabric || fabricModule.default || fabricModule;
-        
-        // Wait a bit to ensure DOM is ready
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        if (!canvasRef.current) return;
-        
-        const canvas = new fabric.Canvas(canvasRef.current, {
-          width: 1123,
-          height: 794,
-          backgroundColor: '#ffffff',
-        });
+    const { source, destination } = result;
+    
+    // If dropped in the same position, do nothing
+    if (source.index === destination.index) return;
 
-        // Explicitly enable selection and interaction
-        canvas.selection = true;
-        canvas.preserveObjectStacking = true;
-        canvas.renderOnAddRemove = true;
-        canvas.allowTouchScrolling = false;
+    // Reorder the text fields array
+    const reorderedFields = Array.from(textFields);
+    const [movedField] = reorderedFields.splice(source.index, 1);
+    reorderedFields.splice(destination.index, 0, movedField);
 
-        fabricCanvasRef.current = canvas;
-
-        console.log('✅ Fabric.js canvas initialized:', canvas);
-        console.log('Canvas selection enabled:', canvas.selection);
-
-      // Handle object selection
-      canvas.on('selection:created', (e) => {
-        if (e.selected && e.selected[0]) {
-          setSelectedField(e.selected[0].fieldKey || null);
-        }
-      });
-
-      canvas.on('selection:updated', (e) => {
-        if (e.selected && e.selected[0]) {
-          setSelectedField(e.selected[0].fieldKey || null);
-        }
-      });
-
-      canvas.on('selection:cleared', () => {
-        setSelectedField(null);
-      });
-
-      // Handle direct object selection (when clicking on object)
-      canvas.on('mouse:down', (e) => {
-        if (e.target && e.target.fieldKey) {
-          setSelectedField(e.target.fieldKey);
-        } else if (!e.target) {
-          setSelectedField(null);
-        }
-      });
-
-      // Handle object selection after mouse up
-      canvas.on('mouse:up', (e) => {
-        const activeObject = canvas.getActiveObject();
-        if (activeObject && activeObject.fieldKey) {
-          setSelectedField(activeObject.fieldKey);
-        }
-      });
-
-      // Update text fields state when objects are modified
-      canvas.on('object:modified', () => {
-        updateTextFieldsFromCanvas();
-      });
-
-      // Update on object moved (real-time during drag)
-      canvas.on('object:moving', () => {
-        updateTextFieldsFromCanvas();
-      });
-
-      // Update when object is moved (after drag ends)
-      canvas.on('object:moved', () => {
-        updateTextFieldsFromCanvas();
-      });
-
-      // Update on object scaled
-      canvas.on('object:scaling', () => {
-        updateTextFieldsFromCanvas();
-      });
-
-      // Update when object is scaled (after scaling ends)
-      canvas.on('object:scaled', () => {
-        updateTextFieldsFromCanvas();
-      });
-
-      // Ensure all existing objects are selectable
-      canvas.getObjects().forEach(obj => {
-        if (obj.fieldKey) {
-          obj.set({
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            evented: true,
-          });
-        }
-      });
-      
-      canvas.renderAll();
-      } catch (error) {
-        console.error('Failed to initialize Fabric.js canvas:', error);
-      }
-    };
-
-    initFabric();
-
-    return () => {
-      if (fabricCanvasRef.current) {
-        fabricCanvasRef.current.dispose();
-      }
-    };
-  }, []);
-
-  const updateTextFieldsFromCanvas = () => {
-    if (!fabricCanvasRef.current) return;
-
-    const canvas = fabricCanvasRef.current;
-    const fields = canvas.getObjects()
-      .filter(obj => obj.fieldKey)
-      .map(obj => {
-        // Ensure all objects are selectable
-        if (!obj.selectable) {
-          obj.set({
-            selectable: true,
-            hasControls: true,
-            hasBorders: true,
-            evented: true,
-          });
-        }
-        return {
-          fieldKey: obj.fieldKey,
-          x: obj.left || 0,
-          y: obj.top || 0,
-          width: (obj.width || 200) * (obj.scaleX || 1),
-          height: (obj.height || 30) * (obj.scaleY || 1),
-          fontSize: obj.fontSize || 24,
-          fontFamily: obj.fontFamily || 'Arial',
-          fill: obj.fill || '#000000',
-          text: obj.text || '',
-        };
-      });
-
-    setTextFields(fields);
+    setTextFields(reorderedFields);
   };
 
   // Load background image
@@ -186,167 +58,146 @@ const VisualCertificateEditor = () => {
       const imgUrl = e.target.result;
       setBackgroundImage(imgUrl);
 
-      if (fabricCanvasRef.current) {
-        const fabricModule = await import('fabric');
-        const fabric = fabricModule.fabric || fabricModule.default || fabricModule;
-        
-        fabric.Image.fromURL(imgUrl, (img) => {
-          const canvas = fabricCanvasRef.current;
-          // Scale image to fit canvas while maintaining aspect ratio
-          const imgAspect = img.width / img.height;
-          const canvasAspect = canvas.width / canvas.height;
-          
-          let scaleX, scaleY;
-          if (imgAspect > canvasAspect) {
-            scaleX = canvas.width / img.width;
-            scaleY = scaleX;
-          } else {
-            scaleY = canvas.height / img.height;
-            scaleX = scaleY;
-          }
-          
-          canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-            scaleX: scaleX,
-            scaleY: scaleY,
-            originX: 'left',
-            originY: 'top',
-          });
-        });
-      }
+      const img = new Image();
+      img.onload = () => {
+        backgroundImageRef.current = img;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+
+        const imgAspect = img.width / img.height;
+        const canvasAspect = canvasWidth / canvasHeight;
+
+        let drawWidth, drawHeight;
+        if (imgAspect > canvasAspect) {
+          drawWidth = canvasWidth;
+          drawHeight = canvasWidth / imgAspect;
+        } else {
+          drawHeight = canvasHeight;
+          drawWidth = canvasHeight * imgAspect;
+        }
+
+        const offsetX = (canvasWidth - drawWidth) / 2;
+        const offsetY = (canvasHeight - drawHeight) / 2;
+
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      };
+      img.src = imgUrl;
     };
     reader.readAsDataURL(file);
   };
 
   // Add text field
-  const handleAddTextField = async () => {
-    if (!fabricCanvasRef.current) {
-      alert('Canvas not ready. Please wait a moment and try again.');
-      return;
-    }
-
-    try {
-      const fabricModule = await import('fabric');
-      const fabric = fabricModule.fabric || fabricModule.default || fabricModule;
-      const canvas = fabricCanvasRef.current;
-
-      if (!canvas) {
-        alert('Canvas not initialized. Please refresh the page.');
-        return;
-      }
-
-      const fieldKey = `field_${Date.now()}`;
-      const text = new fabric.Textbox('Enter text', {
-        left: 100,
-        top: 100,
-        width: 200,
-        fontSize: 24,
-        fontFamily: 'Arial',
-        fill: '#000000',
-        fieldKey: fieldKey,
-        editable: true,
-        selectable: true,
-        hasControls: true,
-        hasBorders: true,
-        evented: true,
-        lockMovementX: false,
-        lockMovementY: false,
-        lockRotation: false,
-        lockScalingX: false,
-        lockScalingY: false,
-        cornerSize: 10,
-        transparentCorners: false,
-        borderColor: '#4285f4',
-        cornerColor: '#4285f4',
-        cornerStrokeColor: '#fff',
-      });
-
-      canvas.add(text);
-      canvas.setActiveObject(text);
-      
-      // Force render and ensure object is interactive
-      text.setCoords();
-      canvas.renderAll();
-      
-      console.log('✅ Text field added:', {
-        fieldKey,
-        selectable: text.selectable,
-        hasControls: text.hasControls,
-        evented: text.evented,
-      });
-      
-      // Update state
-      updateTextFieldsFromCanvas();
-      setSelectedField(fieldKey);
-
-    } catch (error) {
-      console.error('Error adding text field:', error);
-      alert('Failed to add text field. Please try again.');
-    }
+  const handleAddTextField = () => {
+    const fieldKey = `field_${Date.now()}`;
+    const newField = {
+      fieldKey,
+      x: 100,
+      y: 100,
+      width: 200,
+      height: 40,
+      fontSize: 24,
+      fontFamily: 'Arial',
+      fill: '#000000',
+      text: 'Enter text',
+    };
+    setTextFields((prev) => [...prev, newField]);
+    setSelectedField(fieldKey);
   };
 
   // Delete selected field
   const handleDeleteField = () => {
-    if (!fabricCanvasRef.current || !selectedField) return;
-
-    const canvas = fabricCanvasRef.current;
-    const objects = canvas.getObjects();
-    const objToRemove = objects.find(obj => obj.fieldKey === selectedField);
-
-    if (objToRemove) {
-      canvas.remove(objToRemove);
-      canvas.renderAll();
-      setTextFields(prev => prev.filter(f => f.fieldKey !== selectedField));
-      setSelectedField(null);
-    }
+    if (!selectedField) return;
+    setTextFields((prev) => prev.filter((f) => f.fieldKey !== selectedField));
+    setSelectedField(null);
   };
 
   // Update field properties
   const handleFieldPropertyChange = (fieldKey, property, value) => {
-    if (!fabricCanvasRef.current) return;
+    setTextFields((prev) =>
+      prev.map((field) => {
+        if (field.fieldKey !== fieldKey) return field;
 
-    const canvas = fabricCanvasRef.current;
-    const objects = canvas.getObjects();
-    const obj = objects.find(o => o.fieldKey === fieldKey);
-
-    if (obj) {
-      // Ensure object remains selectable and movable
-      const updateProps = {
-        selectable: true,
-        hasControls: true,
-        hasBorders: true,
-        evented: true,
-      };
-
-      if (property === 'fontSize') {
-        updateProps.fontSize = parseInt(value) || 12;
-      } else if (property === 'fontFamily') {
-        updateProps.fontFamily = value;
-      } else if (property === 'fill') {
-        updateProps.fill = value;
-      } else if (property === 'text') {
-        updateProps.text = value;
-      } else if (property === 'x') {
-        const numValue = parseFloat(value) || 0;
-        updateProps.left = numValue;
-      } else if (property === 'y') {
-        const numValue = parseFloat(value) || 0;
-        updateProps.top = numValue;
-      } else if (property === 'width') {
-        const numValue = parseFloat(value) || 100;
-        const currentWidth = obj.width * (obj.scaleX || 1);
-        updateProps.scaleX = numValue / obj.width;
-      } else if (property === 'height') {
-        const numValue = parseFloat(value) || 30;
-        const currentHeight = obj.height * (obj.scaleY || 1);
-        updateProps.scaleY = numValue / obj.height;
-      }
-
-      obj.set(updateProps);
-      obj.setCoords();
-      canvas.renderAll();
-      updateTextFieldsFromCanvas();
-    }
+        if (property === 'fontSize') {
+          return { ...field, fontSize: parseInt(value, 10) || 12 };
+        }
+        if (property === 'x' || property === 'y' || property === 'width' || property === 'height') {
+          const num = parseFloat(value);
+          if (Number.isNaN(num)) return field;
+          return { ...field, [property]: num };
+        }
+        return { ...field, [property]: value };
+      })
+    );
   };
+
+  // Drag handling for text fields on top of the canvas
+  const handleFieldMouseDown = (fieldKey, event) => {
+    event.stopPropagation();
+    const container = editorRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    const field = textFields.find((f) => f.fieldKey === fieldKey);
+    if (!field) return;
+
+    setSelectedField(fieldKey);
+    setDragState({
+      fieldKey,
+      startMouseX: mouseX,
+      startMouseY: mouseY,
+      startX: field.x,
+      startY: field.y,
+    });
+  };
+
+  useEffect(() => {
+    if (!dragState) return;
+
+    const handleMouseMove = (event) => {
+      const container = editorRef.current;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const dx = mouseX - dragState.startMouseX;
+      const dy = mouseY - dragState.startMouseY;
+
+      setTextFields((prev) =>
+        prev.map((field) => {
+          if (field.fieldKey !== dragState.fieldKey) return field;
+
+          let newX = dragState.startX + dx;
+          let newY = dragState.startY + dy;
+
+          // Clamp within canvas bounds
+          newX = Math.min(Math.max(0, newX), canvasWidth - field.width);
+          newY = Math.min(Math.max(0, newY), canvasHeight - field.height);
+
+          return { ...field, x: newX, y: newY };
+        })
+      );
+    };
+
+    const handleMouseUp = () => {
+      setDragState(null);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragState, canvasWidth, canvasHeight]);
 
   // Handle Excel upload
   const handleExcelUpload = (event) => {
@@ -386,7 +237,7 @@ const VisualCertificateEditor = () => {
 
   // Generate PDFs and ZIP
   const handleGenerateCertificates = async () => {
-    if (!excelData || !fabricCanvasRef.current) {
+    if (!excelData || !canvasRef.current) {
       alert('Please upload Excel data and set up your certificate template');
       return;
     }
@@ -401,90 +252,95 @@ const VisualCertificateEditor = () => {
 
     try {
       const zip = new JSZip();
-      const canvas = fabricCanvasRef.current;
-      const fabricModule = await import('fabric');
-      const fabric = fabricModule.fabric || fabricModule.default || fabricModule;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
 
-      // Save original text values
-      const originalTextValues = canvas.getObjects()
-        .filter(obj => obj.fieldKey)
-        .map(obj => ({ fieldKey: obj.fieldKey, text: obj.text }));
+      const drawBase = () => {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        if (backgroundImageRef.current) {
+          const img = backgroundImageRef.current;
+          const imgAspect = img.width / img.height;
+          const canvasAspect = canvasWidth / canvasHeight;
+
+          let drawWidth, drawHeight;
+          if (imgAspect > canvasAspect) {
+            drawWidth = canvasWidth;
+            drawHeight = canvasWidth / imgAspect;
+          } else {
+            drawHeight = canvasHeight;
+            drawWidth = canvasHeight * imgAspect;
+          }
+
+          const offsetX = (canvasWidth - drawWidth) / 2;
+          const offsetY = (canvasHeight - drawHeight) / 2;
+          ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        } else {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        }
+      };
+
+      const wrapText = (context, text, maxWidth, lineHeight) => {
+        const words = String(text).split(' ');
+        const lines = [];
+        let line = '';
+
+        for (let n = 0; n < words.length; n++) {
+          const testLine = line ? `${line} ${words[n]}` : words[n];
+          const metrics = context.measureText(testLine);
+          const testWidth = metrics.width;
+          if (testWidth > maxWidth && n > 0) {
+            lines.push(line);
+            line = words[n];
+          } else {
+            line = testLine;
+          }
+        }
+        if (line) lines.push(line);
+        return lines;
+      };
 
       for (let i = 0; i < excelData.length; i++) {
         try {
           const row = excelData[i];
           
-          // Update text fields with Excel data
-          const objects = canvas.getObjects();
-          let updatedCount = 0;
-          objects.forEach(obj => {
-            if (obj.fieldKey && fieldMappings[obj.fieldKey]) {
-              const columnName = fieldMappings[obj.fieldKey];
-              const value = row[columnName] || '';
-              obj.set({ text: String(value) });
-              updatedCount++;
-              console.log(`Row ${i + 1}: Updated field "${obj.fieldKey}" with value "${value}" from column "${columnName}"`);
-            }
+          // Draw background and text for this row
+          drawBase();
+
+          textFields.forEach((field) => {
+            const mappedColumn = fieldMappings[field.fieldKey];
+            const valueFromRow = mappedColumn ? row[mappedColumn] : undefined;
+            const text = valueFromRow !== undefined && valueFromRow !== null && valueFromRow !== ''
+              ? String(valueFromRow)
+              : field.text;
+
+            if (!text) return;
+
+            ctx.save();
+            ctx.fillStyle = field.fill || '#000000';
+            ctx.font = `${field.fontSize || 24}px ${field.fontFamily || 'Arial'}`;
+            ctx.textBaseline = 'top';
+
+            const maxWidth = field.width || 200;
+            const lineHeight = (field.fontSize || 24) * 1.2;
+            const lines = wrapText(ctx, text, maxWidth, lineHeight);
+
+            let currentY = field.y;
+            lines.forEach((line) => {
+              ctx.fillText(line, field.x, currentY);
+              currentY += lineHeight;
+            });
+
+            ctx.restore();
           });
-          
-          if (updatedCount === 0) {
-            console.warn(`Row ${i + 1}: No fields were updated. Check your field mappings.`);
-          }
 
-          // Render the updated canvas
-          canvas.renderAll();
-          
-          // Wait for rendering to complete
-          await new Promise(r => setTimeout(r, 200));
-          
           // Convert canvas to image
-          let dataURL;
-          try {
-            dataURL = canvas.toDataURL({
-              format: 'png',
-              quality: 1,
-              multiplier: 2,
-            });
-            
-            console.log(`Row ${i + 1}: DataURL generated, length: ${dataURL?.length || 0}`);
-            
-            // If we get an empty or invalid data URL, try again
-            if (!dataURL || dataURL.length < 100 || dataURL === 'data:,') {
-              console.warn(`Row ${i + 1}: First attempt failed, retrying...`);
-              await new Promise(r => setTimeout(r, 300));
-              canvas.renderAll();
-              await new Promise(r => setTimeout(r, 200));
-              dataURL = canvas.toDataURL({
-                format: 'png',
-                quality: 1,
-                multiplier: 2,
-              });
-              console.log(`Row ${i + 1}: Retry DataURL length: ${dataURL?.length || 0}`);
-            }
-          } catch (error) {
-            console.error(`Row ${i + 1}: Error converting canvas to image:`, error);
-            // Restore original text values
-            objects.forEach((obj, idx) => {
-              const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-              if (original) {
-                obj.set({ text: original.text });
-              }
-            });
-            canvas.renderAll();
-            continue;
-          }
+          const dataURL = canvas.toDataURL('image/png');
 
-          // Verify dataURL is valid
           if (!dataURL || dataURL === 'data:,' || dataURL.length < 100) {
             console.error(`Failed to generate image for row ${i + 1}. DataURL length: ${dataURL?.length || 0}`);
-            // Restore original text values
-            objects.forEach((obj) => {
-              const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-              if (original) {
-                obj.set({ text: original.text });
-              }
-            });
-            canvas.renderAll();
             continue;
           }
 
@@ -496,14 +352,6 @@ const VisualCertificateEditor = () => {
           const base64Data = dataURL.split(',')[1];
           if (!base64Data || base64Data.length < 100) {
             console.error(`Invalid data URL for row ${i + 1}. Base64 length: ${base64Data?.length || 0}`);
-            // Restore original text values
-            objects.forEach((obj) => {
-              const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-              if (original) {
-                obj.set({ text: original.text });
-              }
-            });
-            canvas.renderAll();
             continue;
           }
           
@@ -523,12 +371,7 @@ const VisualCertificateEditor = () => {
             try {
               // Fallback: try as JPEG if PNG fails
               await new Promise(r => setTimeout(r, 100));
-              canvas.renderAll();
-              const jpegDataURL = canvas.toDataURL({
-                format: 'jpeg',
-                quality: 0.95,
-                multiplier: 2,
-              });
+              const jpegDataURL = canvas.toDataURL('image/jpeg', 0.95);
               const jpegBase64 = jpegDataURL.split(',')[1];
               if (!jpegBase64 || jpegBase64.length < 100) {
                 throw new Error('Invalid JPEG data');
@@ -541,14 +384,6 @@ const VisualCertificateEditor = () => {
               pdfImage = await pdfDoc.embedJpg(jpegBytes);
             } catch (jpegError) {
               console.error(`Failed to embed image for row ${i + 1}:`, jpegError);
-              // Restore original text values
-              objects.forEach((obj) => {
-                const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-                if (original) {
-                  obj.set({ text: original.text });
-                }
-              });
-              canvas.renderAll();
               continue;
             }
           }
@@ -568,15 +403,6 @@ const VisualCertificateEditor = () => {
           zip.file(fileName, pdfBytes);
 
           setGenerationProgress(Math.round(((i + 1) / excelData.length) * 100));
-
-          // Restore original text values for next iteration
-          objects.forEach((obj) => {
-            const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-            if (original) {
-              obj.set({ text: original.text });
-            }
-          });
-          canvas.renderAll();
         
         } catch (rowError) {
           console.error(`Row ${i + 1}: Error generating certificate:`, rowError);
@@ -585,20 +411,6 @@ const VisualCertificateEditor = () => {
             stack: rowError.stack,
             name: rowError.name,
           });
-          
-          // Restore original text values on error
-          try {
-            const objects = canvas.getObjects();
-            objects.forEach((obj) => {
-              const original = originalTextValues.find(o => o.fieldKey === obj.fieldKey);
-              if (original) {
-                obj.set({ text: original.text });
-              }
-            });
-            canvas.renderAll();
-          } catch (restoreError) {
-            console.error('Error restoring canvas:', restoreError);
-          }
           
           // Continue with next row instead of failing completely
           setGenerationProgress(Math.round(((i + 1) / excelData.length) * 100));
@@ -662,6 +474,10 @@ const VisualCertificateEditor = () => {
             <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">
               <h2 className="text-lg font-semibold">Text Fields</h2>
               
+                <p className="text-xs text-brand-100/60 p-2 rounded-lg bg-brand-500/10 border border-brand-500/20">
+                  💡 Drag fields by the grip icon to reorder layers
+                </p>
+              
               <button
                 onClick={handleAddTextField}
                 className="w-full rounded-lg border border-brand-500/60 bg-brand-500/20 px-4 py-2 text-sm font-semibold text-brand-100 transition hover:bg-brand-500/30 flex items-center justify-center gap-2"
@@ -681,39 +497,69 @@ const VisualCertificateEditor = () => {
               )}
 
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {textFields.map((field) => (
-                  <div
-                    key={field.fieldKey}
-                    onClick={() => {
-                      if (fabricCanvasRef.current) {
-                        const canvas = fabricCanvasRef.current;
-                        const obj = canvas.getObjects().find(o => o.fieldKey === field.fieldKey);
-                        if (obj) {
-                          // Ensure object is selectable and movable
-                          obj.set({
-                            selectable: true,
-                            hasControls: true,
-                            hasBorders: true,
-                            evented: true,
-                          });
-                          canvas.setActiveObject(obj);
-                          canvas.renderAll();
-                          setSelectedField(field.fieldKey);
-                        }
-                      }
-                    }}
-                    className={`p-3 rounded-lg border cursor-pointer transition ${
-                      selectedField === field.fieldKey
-                        ? 'border-brand-500 bg-brand-500/20'
-                        : 'border-white/10 bg-white/5 hover:border-white/20'
-                    }`}
-                  >
-                    <p className="text-xs font-semibold text-brand-100/80 mb-1">
-                      {field.fieldKey.replace('field_', 'Field ')}
-                    </p>
-                    <p className="text-sm truncate">{field.text || 'Empty'}</p>
-                  </div>
-                ))}
+                <DragDropContext onDragEnd={handleFieldReorder}>
+                  <Droppable droppableId="text-fields-list">
+                    {(provided, snapshot) => (
+                      <div
+                        {...provided.droppableProps}
+                        ref={provided.innerRef}
+                        className={`space-y-2 ${snapshot.isDraggingOver ? 'bg-brand-500/10 rounded-lg' : ''}`}
+                      >
+                        {textFields.map((field, index) => (
+                          <Draggable
+                            key={field.fieldKey}
+                            draggableId={field.fieldKey}
+                            index={index}
+                          >
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                onClick={() => {
+                                  if (fabricCanvasRef.current) {
+                                    const canvas = fabricCanvasRef.current;
+                                    const obj = canvas.getObjects().find(o => o.fieldKey === field.fieldKey);
+                                    if (obj) {
+                                      // Ensure object is selectable and movable
+                                      obj.set({
+                                        selectable: true,
+                                        hasControls: true,
+                                        hasBorders: true,
+                                        evented: true,
+                                      });
+                                      canvas.setActiveObject(obj);
+                                      canvas.renderAll();
+                                      setSelectedField(field.fieldKey);
+                                    }
+                                  }
+                                }}
+                                className={`p-3 rounded-lg border cursor-pointer transition flex items-center gap-2 ${
+                                  selectedField === field.fieldKey
+                                    ? 'border-brand-500 bg-brand-500/20'
+                                    : 'border-white/10 bg-white/5 hover:border-white/20'
+                                } ${snapshot.isDragging ? 'shadow-lg shadow-brand-500/20' : ''}`}
+                              >
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className="cursor-grab active:cursor-grabbing text-brand-100/50 hover:text-brand-100/80 transition"
+                                >
+                                  <GripVertical className="h-4 w-4" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-brand-100/80 mb-1">
+                                    {field.fieldKey.replace('field_', 'Field ')}
+                                  </p>
+                                  <p className="text-sm truncate">{field.text || 'Empty'}</p>
+                                </div>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
               </div>
 
               {selectedFieldData && (
@@ -775,61 +621,6 @@ const VisualCertificateEditor = () => {
                       />
                     </div>
                   </div>
-
-                  <div className="pt-2 border-t border-white/10">
-                    <h4 className="text-xs font-semibold text-brand-100/80 mb-2">Position & Size</h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-xs text-brand-100/80 mb-1 block">X Position</label>
-                        <input
-                          type="number"
-                          value={Math.round(selectedFieldData.x)}
-                          onChange={(e) => handleFieldPropertyChange(selectedField, 'x', e.target.value)}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                          min="0"
-                          max="1123"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-brand-100/80 mb-1 block">Y Position</label>
-                        <input
-                          type="number"
-                          value={Math.round(selectedFieldData.y)}
-                          onChange={(e) => handleFieldPropertyChange(selectedField, 'y', e.target.value)}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                          min="0"
-                          max="794"
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div>
-                        <label className="text-xs text-brand-100/80 mb-1 block">Width</label>
-                        <input
-                          type="number"
-                          value={Math.round(selectedFieldData.width)}
-                          onChange={(e) => handleFieldPropertyChange(selectedField, 'width', e.target.value)}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                          min="50"
-                          max="1123"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs text-brand-100/80 mb-1 block">Height</label>
-                        <input
-                          type="number"
-                          value={Math.round(selectedFieldData.height)}
-                          onChange={(e) => handleFieldPropertyChange(selectedField, 'height', e.target.value)}
-                          className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                          min="20"
-                          max="794"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-xs text-brand-100/60 mt-2">
-                      💡 Tip: You can also drag fields on the canvas
-                    </p>
-                  </div>
                 </div>
               )}
             </div>
@@ -857,27 +648,78 @@ const VisualCertificateEditor = () => {
             </div>
           </div>
 
-          {/* Center - Canvas */}
+          {/* Center - Canvas with draggable text overlays */}
           <div className="rounded-2xl border border-white/10 bg-black/30 p-6">
             <div className="bg-white rounded-lg p-4 overflow-auto" style={{ position: 'relative', minHeight: '794px' }}>
-              {!fabricCanvasRef.current && (
-                <div className="flex items-center justify-center h-full min-h-[794px]">
-                  <p className="text-gray-500">Initializing canvas...</p>
-                </div>
-              )}
-              <canvas 
-                ref={canvasRef} 
-                className="border border-gray-300"
-                style={{ 
-                  display: 'block',
-                  cursor: 'default',
-                  touchAction: 'none',
-                  userSelect: 'none',
+              <div
+                ref={editorRef}
+                onMouseDown={(e) => {
+                  // Clicking on empty canvas area should deselect any field
+                  if (e.target === e.currentTarget) {
+                    setSelectedField(null);
+                  }
                 }}
-              />
+                style={{
+                  position: 'relative',
+                  width: `${canvasWidth}px`,
+                  height: `${canvasHeight}px`,
+                  margin: '0 auto',
+                }}
+              >
+                <canvas
+                  ref={canvasRef}
+                  width={canvasWidth}
+                  height={canvasHeight}
+                  className="border border-gray-300 block"
+                  style={{
+                    touchAction: 'none',
+                    userSelect: 'none',
+                  }}
+                />
+
+                {textFields.map((field) => (
+                  <div
+                    key={field.fieldKey}
+                    onMouseDown={(e) => handleFieldMouseDown(field.fieldKey, e)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedField(field.fieldKey);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: `${field.x}px`,
+                      top: `${field.y}px`,
+                      width: `${field.width}px`,
+                      height: `${field.height}px`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: `${field.fontSize}px`,
+                      fontFamily: field.fontFamily,
+                      color: field.fill,
+                      cursor:
+                        dragState && dragState.fieldKey === field.fieldKey
+                          ? 'grabbing'
+                          : 'grab',
+                      border:
+                        selectedField === field.fieldKey
+                          ? '1px solid #3b82f6'
+                          : '1px dashed transparent',
+                      boxSizing: 'border-box',
+                      padding: '2px',
+                      backgroundColor: 'transparent',
+                      userSelect: 'none',
+                      textAlign: 'center',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {field.text}
+                  </div>
+                ))}
+              </div>
             </div>
             <p className="text-xs text-brand-100/70 mt-2 text-center">
-              💡 Click fields to select • Drag to move • Use corner handles to resize
+              💡 Click a field to select, then drag it anywhere on the certificate
             </p>
           </div>
 

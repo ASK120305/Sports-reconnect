@@ -225,7 +225,7 @@ export async function generateCertificatesZipStream({ templateId, records, archi
       });
       
       // Wait a bit for fonts and images to load
-      await page.waitForTimeout(500);
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       const pdfRaw = await page.pdf({
         format: 'A4',
