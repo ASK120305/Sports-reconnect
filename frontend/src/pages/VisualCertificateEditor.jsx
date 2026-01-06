@@ -141,17 +141,22 @@ const VisualCertificateEditor = () => {
     event.stopPropagation();
     const container = editorRef.current;
     if (!container) return;
-    const rect = container.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+
     const field = textFields.find((f) => f.fieldKey === fieldKey);
     if (!field) return;
+
+    // Calculate the mouse offset inside the field so that
+    // the cursor stays at the same relative point while dragging
+    const fieldRect = event.currentTarget.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const offsetX = event.clientX - fieldRect.left;
+    const offsetY = event.clientY - fieldRect.top;
 
     setSelectedField(fieldKey);
     setDragState({
       fieldKey,
-      startMouseX: mouseX,
-      startMouseY: mouseY,
+      offsetX,
+      offsetY,
       startX: field.x,
       startY: field.y,
     });
@@ -163,25 +168,22 @@ const VisualCertificateEditor = () => {
     const handleMouseMove = (event) => {
       const container = editorRef.current;
       if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
+      const containerRect = container.getBoundingClientRect();
 
-      const dx = mouseX - dragState.startMouseX;
-      const dy = mouseY - dragState.startMouseY;
+      // New top-left position so that the cursor stays at the
+      // same point inside the field while dragging
+      let newX = event.clientX - containerRect.left - dragState.offsetX;
+      let newY = event.clientY - containerRect.top - dragState.offsetY;
 
       setTextFields((prev) =>
         prev.map((field) => {
           if (field.fieldKey !== dragState.fieldKey) return field;
 
-          let newX = dragState.startX + dx;
-          let newY = dragState.startY + dy;
-
           // Clamp within canvas bounds
-          newX = Math.min(Math.max(0, newX), canvasWidth - field.width);
-          newY = Math.min(Math.max(0, newY), canvasHeight - field.height);
+          const clampedX = Math.min(Math.max(0, newX), canvasWidth - field.width);
+          const clampedY = Math.min(Math.max(0, newY), canvasHeight - field.height);
 
-          return { ...field, x: newX, y: newY };
+          return { ...field, x: clampedX, y: clampedY };
         })
       );
     };
@@ -516,22 +518,7 @@ const VisualCertificateEditor = () => {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 onClick={() => {
-                                  if (fabricCanvasRef.current) {
-                                    const canvas = fabricCanvasRef.current;
-                                    const obj = canvas.getObjects().find(o => o.fieldKey === field.fieldKey);
-                                    if (obj) {
-                                      // Ensure object is selectable and movable
-                                      obj.set({
-                                        selectable: true,
-                                        hasControls: true,
-                                        hasBorders: true,
-                                        evented: true,
-                                      });
-                                      canvas.setActiveObject(obj);
-                                      canvas.renderAll();
-                                      setSelectedField(field.fieldKey);
-                                    }
-                                  }
+                                  setSelectedField(field.fieldKey);
                                 }}
                                 className={`p-3 rounded-lg border cursor-pointer transition flex items-center gap-2 ${
                                   selectedField === field.fieldKey
