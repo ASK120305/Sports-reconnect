@@ -106,20 +106,20 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-6">
+    <div className="rounded-xl border border-border bg-secondary p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/20 text-brand-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20 text-accent">
             <Palette className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-xl font-semibold">Customize Template</h3>
-            <p className="text-sm text-brand-100/70">Personalize colors, fonts, and text</p>
+            <h3 className="text-xl font-semibold text-heading">Customize Template</h3>
+            <p className="text-sm text-textMuted">Personalize colors, fonts, and text</p>
           </div>
         </div>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-brand-500/60 hover:text-white"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm text-accent transition hover:border-accent hover:text-accentHover"
         >
           {isExpanded ? 'Collapse' : 'Expand'}
         </button>
@@ -129,61 +129,61 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
         <div className="space-y-6">
           {/* Colors Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-brand-100">
+            <div className="flex items-center gap-2 text-sm font-semibold text-heading">
               <Palette className="h-4 w-4" />
               Colors
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <label className="text-xs text-brand-100/80">Primary Color</label>
+                <label className="text-xs text-textMuted">Primary Color</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={customization.primaryColor}
                     onChange={(e) => handleColorChange('primaryColor', e.target.value)}
-                    className="h-10 w-16 rounded-lg border border-white/10 cursor-pointer"
+                    className="h-10 w-16 rounded-lg border border-border cursor-pointer"
                   />
                   <input
                     type="text"
                     value={customization.primaryColor}
                     onChange={(e) => handleColorChange('primaryColor', e.target.value)}
-                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                    className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
                     placeholder="#d4af37"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-brand-100/80">Accent Color</label>
+                <label className="text-xs text-textMuted">Accent Color</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={customization.accentColor}
                     onChange={(e) => handleColorChange('accentColor', e.target.value)}
-                    className="h-10 w-16 rounded-lg border border-white/10 cursor-pointer"
+                    className="h-10 w-16 rounded-lg border border-border cursor-pointer"
                   />
                   <input
                     type="text"
                     value={customization.accentColor}
                     onChange={(e) => handleColorChange('accentColor', e.target.value)}
-                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                    className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
                     placeholder="#1a1a1a"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-xs text-brand-100/80">Background</label>
+                <label className="text-xs text-textMuted">Background</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={customization.backgroundColor}
                     onChange={(e) => handleColorChange('backgroundColor', e.target.value)}
-                    className="h-10 w-16 rounded-lg border border-white/10 cursor-pointer"
+                    className="h-10 w-16 rounded-lg border border-border cursor-pointer"
                   />
                   <input
                     type="text"
                     value={customization.backgroundColor}
                     onChange={(e) => handleColorChange('backgroundColor', e.target.value)}
-                    className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                    className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
                     placeholder="#ffffff"
                   />
                 </div>
@@ -193,17 +193,17 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
 
           {/* Font Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-brand-100">
+            <div className="flex items-center gap-2 text-sm font-semibold text-heading">
               <Type className="h-4 w-4" />
               Font Family
             </div>
             <select
               value={customization.fontFamily}
               onChange={(e) => handleFontChange(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white focus:border-brand-500 focus:outline-none"
+              className="w-full rounded-lg border border-border bg-card px-4 py-2 text-sm text-textPrimary focus:border-primary focus:outline-none"
             >
               {FONT_OPTIONS.map((font) => (
-                <option key={font.value} value={font.value} className="bg-black">
+                <option key={font.value} value={font.value} className="bg-charcoal">
                   {font.label}
                 </option>
               ))}
@@ -212,42 +212,42 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
 
           {/* Logo Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-brand-100">
+            <div className="flex items-center gap-2 text-sm font-semibold text-heading">
               <Image className="h-4 w-4" />
               Logo
             </div>
             {logoPreview ? (
               <div className="relative">
-                <div className="flex items-center gap-4 p-4 rounded-lg border border-white/10 bg-white/5">
+                <div className="flex items-center gap-4 p-4 rounded-lg border border-border bg-card">
                   <img
                     src={logoPreview}
                     alt="Logo preview"
                     className="h-16 w-16 object-contain rounded"
                   />
                   <div className="flex-1">
-                    <p className="text-sm text-brand-100">Logo uploaded</p>
-                    <p className="text-xs text-brand-100/70">Click remove to change</p>
+                    <p className="text-sm text-textPrimary">Logo uploaded</p>
+                    <p className="text-xs text-textMuted">Click remove to change</p>
                   </div>
                   <button
                     onClick={handleRemoveLogo}
-                    className="rounded-lg border border-red-400/60 bg-red-500/20 px-3 py-2 text-sm text-red-100 transition hover:bg-red-500/30"
+                    className="rounded-lg border border-red-400 bg-red-500/20 px-3 py-2 text-sm text-red-400 transition hover:bg-red-500/30"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-white/20 bg-white/5 p-6 text-center cursor-pointer transition hover:border-brand-500/60 hover:bg-white/10">
+              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card p-6 text-center cursor-pointer transition hover:border-accent hover:bg-secondary">
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
                   onChange={handleLogoUpload}
                 />
-                <UploadIcon className="h-8 w-8 text-brand-100/70" />
+                <UploadIcon className="h-8 w-8 text-accent" />
                 <div>
-                  <p className="text-sm text-brand-100">Upload Logo</p>
-                  <p className="text-xs text-brand-100/70">PNG, JPG up to 2MB</p>
+                  <p className="text-sm text-textPrimary">Upload Logo</p>
+                  <p className="text-xs text-textMuted">PNG, JPG up to 2MB</p>
                 </div>
               </label>
             )}
@@ -255,68 +255,68 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
 
           {/* Text Fields Section */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-brand-100">
+            <div className="flex items-center gap-2 text-sm font-semibold text-heading">
               <Type className="h-4 w-4" />
               Text Content
             </div>
             <div className="space-y-3">
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Academy/Organization Name</label>
+                <label className="text-xs text-textMuted mb-1 block">Academy/Organization Name</label>
                 <input
                   type="text"
                   value={customization.academyName}
                   onChange={(e) => handleTextChange('academyName', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:border-primary"
                   placeholder="SPORTS RECONNECT ACADEMY"
                 />
               </div>
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Main Title</label>
+                <label className="text-xs text-textMuted mb-1 block">Main Title</label>
                 <input
                   type="text"
                   value={customization.mainTitle}
                   onChange={(e) => handleTextChange('mainTitle', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:border-primary"
                   placeholder="CERTIFICATE"
                 />
               </div>
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Sub Title</label>
+                <label className="text-xs text-textMuted mb-1 block">Sub Title</label>
                 <input
                   type="text"
                   value={customization.subTitle}
                   onChange={(e) => handleTextChange('subTitle', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:border-primary"
                   placeholder="OF ATHLETIC EXCELLENCE"
                 />
               </div>
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Conferred Text</label>
+                <label className="text-xs text-textMuted mb-1 block">Conferred Text</label>
                 <input
                   type="text"
                   value={customization.conferredText}
                   onChange={(e) => handleTextChange('conferredText', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:border-primary"
                   placeholder="This esteemed honor is conferred upon"
                 />
               </div>
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Description (use {'{{COURSE}}'} and {'{{DATE}}'} for dynamic values)</label>
+                <label className="text-xs text-textMuted mb-1 block">Description (use {'{{COURSE}}'} and {'{{DATE}}'} for dynamic values)</label>
                 <textarea
                   value={customization.description}
                   onChange={(e) => handleTextChange('description', e.target.value)}
                   rows={3}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50 resize-none"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted resize-none focus:border-primary"
                   placeholder="For successfully completing..."
                 />
               </div>
               <div>
-                <label className="text-xs text-brand-100/80 mb-1 block">Signature Name</label>
+                <label className="text-xs text-textMuted mb-1 block">Signature Name</label>
                 <input
                   type="text"
                   value={customization.signatureName}
                   onChange={(e) => handleTextChange('signatureName', e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-brand-100/50"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary placeholder:text-textMuted focus:border-primary"
                   placeholder="Director"
                 />
               </div>
@@ -327,7 +327,7 @@ const TemplateCustomizer = ({ onCustomizationChange, initialCustomization = null
           <div className="flex justify-end">
             <button
               onClick={handleReset}
-              className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-brand-500/60 hover:text-white"
+              className="rounded-lg border border-border bg-card px-4 py-2 text-sm text-accent transition hover:border-accent hover:text-accentHover"
             >
               Reset to Defaults
             </button>

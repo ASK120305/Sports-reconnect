@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { PDFDocument } from 'pdf-lib';
 import JSZip from 'jszip';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import ImageHandler from '../components/ImageHandler';
 
 const VisualCertificateEditor = () => {
   const navigate = useNavigate();
@@ -17,7 +18,9 @@ const VisualCertificateEditor = () => {
 
   const [backgroundImage, setBackgroundImage] = useState(null);
   const [textFields, setTextFields] = useState([]);
+  const [imageFields, setImageFields] = useState([]);
   const [selectedField, setSelectedField] = useState(null);
+  const [selectedFieldType, setSelectedFieldType] = useState(null); // 'text' or 'image'
   const [excelData, setExcelData] = useState(null);
   const [excelColumns, setExcelColumns] = useState([]);
   const [fieldMappings, setFieldMappings] = useState({});
@@ -41,6 +44,20 @@ const VisualCertificateEditor = () => {
     reorderedFields.splice(destination.index, 0, movedField);
 
     setTextFields(reorderedFields);
+  };
+
+  const handleImageFieldReorder = (result) => {
+    if (!result.destination) return;
+
+    const { source, destination } = result;
+    
+    if (source.index === destination.index) return;
+
+    const reorderedFields = Array.from(imageFields);
+    const [movedField] = reorderedFields.splice(source.index, 1);
+    reorderedFields.splice(destination.index, 0, movedField);
+
+    setImageFields(reorderedFields);
   };
 
   // Load background image
@@ -108,41 +125,99 @@ const VisualCertificateEditor = () => {
     };
     setTextFields((prev) => [...prev, newField]);
     setSelectedField(fieldKey);
+    setSelectedFieldType('text');
+  };
+
+  // Add image field
+  const handleAddImageField = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (PNG/JPG)');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const fieldKey = `image_${Date.now()}`;
+        const newImageField = {
+          fieldKey,
+          x: 150,
+          y: 150,
+          width: 100,
+          height: 100,
+          imageData: event.target.result,
+          opacity: 1,
+        };
+        setImageFields((prev) => [...prev, newImageField]);
+        setSelectedField(fieldKey);
+        setSelectedFieldType('image');
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
   };
 
   // Delete selected field
   const handleDeleteField = () => {
     if (!selectedField) return;
-    setTextFields((prev) => prev.filter((f) => f.fieldKey !== selectedField));
+    if (selectedFieldType === 'text') {
+      setTextFields((prev) => prev.filter((f) => f.fieldKey !== selectedField));
+    } else if (selectedFieldType === 'image') {
+      setImageFields((prev) => prev.filter((f) => f.fieldKey !== selectedField));
+    }
     setSelectedField(null);
+    setSelectedFieldType(null);
   };
 
   // Update field properties
   const handleFieldPropertyChange = (fieldKey, property, value) => {
-    setTextFields((prev) =>
-      prev.map((field) => {
-        if (field.fieldKey !== fieldKey) return field;
+    if (selectedFieldType === 'text') {
+      setTextFields((prev) =>
+        prev.map((field) => {
+          if (field.fieldKey !== fieldKey) return field;
 
-        if (property === 'fontSize') {
-          return { ...field, fontSize: parseInt(value, 10) || 12 };
-        }
-        if (property === 'x' || property === 'y' || property === 'width' || property === 'height') {
-          const num = parseFloat(value);
-          if (Number.isNaN(num)) return field;
-          return { ...field, [property]: num };
-        }
-        return { ...field, [property]: value };
-      })
-    );
+          if (property === 'fontSize') {
+            return { ...field, fontSize: parseInt(value, 10) || 12 };
+          }
+          if (property === 'x' || property === 'y' || property === 'width' || property === 'height') {
+            const num = parseFloat(value);
+            if (Number.isNaN(num)) return field;
+            return { ...field, [property]: num };
+          }
+          return { ...field, [property]: value };
+        })
+      );
+    } else if (selectedFieldType === 'image') {
+      setImageFields((prev) =>
+        prev.map((field) => {
+          if (field.fieldKey !== fieldKey) return field;
+
+          if (property === 'x' || property === 'y' || property === 'width' || property === 'height' || property === 'opacity') {
+            const num = parseFloat(value);
+            if (Number.isNaN(num)) return field;
+            return { ...field, [property]: num };
+          }
+          return { ...field, [property]: value };
+        })
+      );
+    }
   };
 
-  // Drag handling for text fields on top of the canvas
-  const handleFieldMouseDown = (fieldKey, event) => {
+  // Drag handling for fields on top of the canvas
+  const handleFieldMouseDown = (fieldKey, fieldType, event) => {
     event.stopPropagation();
     const container = editorRef.current;
     if (!container) return;
 
-    const field = textFields.find((f) => f.fieldKey === fieldKey);
+    const field = fieldType === 'text' 
+      ? textFields.find((f) => f.fieldKey === fieldKey)
+      : imageFields.find((f) => f.fieldKey === fieldKey);
     if (!field) return;
 
     // Calculate the mouse offset inside the field so that
@@ -153,8 +228,10 @@ const VisualCertificateEditor = () => {
     const offsetY = event.clientY - fieldRect.top;
 
     setSelectedField(fieldKey);
+    setSelectedFieldType(fieldType);
     setDragState({
       fieldKey,
+      fieldType,
       offsetX,
       offsetY,
       startX: field.x,
@@ -175,17 +252,31 @@ const VisualCertificateEditor = () => {
       let newX = event.clientX - containerRect.left - dragState.offsetX;
       let newY = event.clientY - containerRect.top - dragState.offsetY;
 
-      setTextFields((prev) =>
-        prev.map((field) => {
-          if (field.fieldKey !== dragState.fieldKey) return field;
+      if (dragState.fieldType === 'text') {
+        setTextFields((prev) =>
+          prev.map((field) => {
+            if (field.fieldKey !== dragState.fieldKey) return field;
 
-          // Clamp within canvas bounds
-          const clampedX = Math.min(Math.max(0, newX), canvasWidth - field.width);
-          const clampedY = Math.min(Math.max(0, newY), canvasHeight - field.height);
+            // Clamp within canvas bounds
+            const clampedX = Math.min(Math.max(0, newX), canvasWidth - field.width);
+            const clampedY = Math.min(Math.max(0, newY), canvasHeight - field.height);
 
-          return { ...field, x: clampedX, y: clampedY };
-        })
-      );
+            return { ...field, x: clampedX, y: clampedY };
+          })
+        );
+      } else if (dragState.fieldType === 'image') {
+        setImageFields((prev) =>
+          prev.map((field) => {
+            if (field.fieldKey !== dragState.fieldKey) return field;
+
+            // Clamp within canvas bounds
+            const clampedX = Math.min(Math.max(0, newX), canvasWidth - field.width);
+            const clampedY = Math.min(Math.max(0, newY), canvasHeight - field.height);
+
+            return { ...field, x: clampedX, y: clampedY };
+          })
+        );
+      }
     };
 
     const handleMouseUp = () => {
@@ -308,9 +399,33 @@ const VisualCertificateEditor = () => {
         try {
           const row = excelData[i];
           
-          // Draw background and text for this row
+          // Draw background, images, and text for this row
           drawBase();
 
+          // Draw image fields first (so text appears on top)
+          for (const imageField of imageFields) {
+            if (imageField.imageData) {
+              const img = new Image();
+              await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = imageField.imageData;
+              });
+              
+              ctx.save();
+              ctx.globalAlpha = imageField.opacity || 1;
+              ctx.drawImage(
+                img,
+                imageField.x,
+                imageField.y,
+                imageField.width,
+                imageField.height
+              );
+              ctx.restore();
+            }
+          }
+
+          // Draw text fields
           textFields.forEach((field) => {
             const mappedColumn = fieldMappings[field.fieldKey];
             const valueFromRow = mappedColumn ? row[mappedColumn] : undefined;
@@ -448,22 +563,30 @@ const VisualCertificateEditor = () => {
     }
   };
 
-  const selectedFieldData = textFields.find(f => f.fieldKey === selectedField);
+  const handleImageAdd = (imageData) => {
+    console.log('Image added:', imageData);
+  };
+
+  const selectedFieldData = selectedFieldType === 'text' 
+    ? textFields.find(f => f.fieldKey === selectedField)
+    : selectedFieldType === 'image'
+    ? imageFields.find(f => f.fieldKey === selectedField)
+    : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface via-[#0b1f24] to-[#041014] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,183,181,0.22),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(1,135,144,0.18),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,84,97,0.28),transparent_25%)]" />
+    <div className="min-h-screen bg-charcoal text-textPrimary">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,179,164,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(124,222,90,0.08),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,179,164,0.15),transparent_25%)]" />
       <div className="relative z-10 mx-auto max-w-[1800px] px-6 py-10 space-y-6">
         <Navbar />
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Visual Certificate Editor</h1>
-            <p className="text-brand-100/70 mt-1">Design your certificate template with drag-and-drop fields</p>
+            <h1 className="text-3xl font-bold text-heading">Visual Certificate Editor</h1>
+            <p className="text-textMuted mt-1">Design your certificate template with drag-and-drop fields</p>
           </div>
           <button
             onClick={() => navigate('/landing')}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-brand-500/60 hover:text-white"
+            className="rounded-xl border border-border bg-secondary px-4 py-2 text-sm text-accent transition hover:border-accent hover:text-accentHover hover:bg-card"
           >
             <X className="h-4 w-4 inline mr-2" />
             Back to Templates
@@ -473,25 +596,33 @@ const VisualCertificateEditor = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_350px] gap-6">
           {/* Left Panel - Field Controls */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">
-              <h2 className="text-lg font-semibold">Text Fields</h2>
+            <div className="rounded-xl border border-border bg-secondary p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-heading">Text Fields</h2>
               
-                <p className="text-xs text-brand-100/60 p-2 rounded-lg bg-brand-500/10 border border-brand-500/20">
+                <p className="text-xs text-textMuted p-2 rounded-lg bg-accent/10 border border-accent/20">
                   💡 Drag fields by the grip icon to reorder layers
                 </p>
               
               <button
                 onClick={handleAddTextField}
-                className="w-full rounded-lg border border-brand-500/60 bg-brand-500/20 px-4 py-2 text-sm font-semibold text-brand-100 transition hover:bg-brand-500/30 flex items-center justify-center gap-2"
+                className="w-full rounded-lg border border-accent bg-accent/20 px-4 py-2 text-sm font-semibold text-accent transition hover:bg-accent/30 flex items-center justify-center gap-2"
               >
                 <Plus className="h-4 w-4" />
                 Add Text Field
               </button>
 
+              <button
+                onClick={handleAddImageField}
+                className="w-full rounded-lg border border-primary bg-primary/20 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/30 flex items-center justify-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                Add Image/Logo
+              </button>
+
               {selectedField && (
                 <button
                   onClick={handleDeleteField}
-                  className="w-full rounded-lg border border-red-400/60 bg-red-500/20 px-4 py-2 text-sm text-red-100 transition hover:bg-red-500/30 flex items-center justify-center gap-2"
+                  className="w-full rounded-lg border border-red-400 bg-red-500/20 px-4 py-2 text-sm text-red-400 transition hover:bg-red-500/30 flex items-center justify-center gap-2"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete Selected
@@ -522,21 +653,21 @@ const VisualCertificateEditor = () => {
                                 }}
                                 className={`p-3 rounded-lg border cursor-pointer transition flex items-center gap-2 ${
                                   selectedField === field.fieldKey
-                                    ? 'border-brand-500 bg-brand-500/20'
-                                    : 'border-white/10 bg-white/5 hover:border-white/20'
-                                } ${snapshot.isDragging ? 'shadow-lg shadow-brand-500/20' : ''}`}
+                                    ? 'border-accent bg-accent/20'
+                                    : 'border-border bg-card hover:border-accent/50'
+                                } ${snapshot.isDragging ? 'shadow-lg shadow-accent/20' : ''}`}
                               >
                                 <div
                                   {...provided.dragHandleProps}
-                                  className="cursor-grab active:cursor-grabbing text-brand-100/50 hover:text-brand-100/80 transition"
+                                  className="cursor-grab active:cursor-grabbing text-textMuted hover:text-accent transition"
                                 >
                                   <GripVertical className="h-4 w-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-brand-100/80 mb-1">
+                                  <p className="text-xs font-semibold text-textMuted mb-1">
                                     {field.fieldKey.replace('field_', 'Field ')}
                                   </p>
-                                  <p className="text-sm truncate">{field.text || 'Empty'}</p>
+                                  <p className="text-sm truncate text-textPrimary">{field.text || 'Empty'}</p>
                                 </div>
                               </div>
                             )}
@@ -549,73 +680,196 @@ const VisualCertificateEditor = () => {
                 </DragDropContext>
               </div>
 
+              {/* Image Fields List */}
+              {imageFields.length > 0 && (
+                <>
+                  <div className="pt-4 border-t border-border">
+                    <h3 className="text-sm font-semibold text-heading mb-2">Image Fields</h3>
+                  </div>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    <DragDropContext onDragEnd={handleImageFieldReorder}>
+                      <Droppable droppableId="image-fields-list">
+                        {(provided, snapshot) => (
+                          <div
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
+                            className={`space-y-2 ${snapshot.isDraggingOver ? 'bg-primary/10 rounded-lg' : ''}`}
+                          >
+                            {imageFields.map((field, index) => (
+                              <Draggable
+                                key={field.fieldKey}
+                                draggableId={field.fieldKey}
+                                index={index}
+                              >
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    onClick={() => {
+                                      setSelectedField(field.fieldKey);
+                                      setSelectedFieldType('image');
+                                    }}
+                                    className={`p-3 rounded-lg border cursor-pointer transition flex items-center gap-2 ${
+                                      selectedField === field.fieldKey && selectedFieldType === 'image'
+                                        ? 'border-primary bg-primary/20'
+                                        : 'border-border bg-card hover:border-primary/50'
+                                    } ${snapshot.isDragging ? 'shadow-lg shadow-primary/20' : ''}`}
+                                  >
+                                    <div
+                                      {...provided.dragHandleProps}
+                                      className="cursor-grab active:cursor-grabbing text-textMuted hover:text-primary transition"
+                                    >
+                                      <GripVertical className="h-4 w-4" />
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                      <img 
+                                        src={field.imageData} 
+                                        alt="Logo preview" 
+                                        className="w-8 h-8 object-contain rounded border border-border"
+                                      />
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-semibold text-textMuted">
+                                          {field.fieldKey.replace('image_', 'Image ')}
+                                        </p>
+                                        <p className="text-xs text-textMuted">
+                                          {field.width}x{field.height}px
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                              </Draggable>
+                            ))}
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+                  </div>
+                </>
+              )}
+
               {selectedFieldData && (
-                <div className="space-y-3 pt-4 border-t border-white/10">
-                  <h3 className="text-sm font-semibold">Field Properties</h3>
+                <div className="space-y-3 pt-4 border-t border-border">
+                  <h3 className="text-sm font-semibold text-heading">Field Properties</h3>
                   
-                  <div>
-                    <label className="text-xs text-brand-100/80 mb-1 block">Text</label>
-                    <input
-                      type="text"
-                      value={selectedFieldData.text}
-                      onChange={(e) => handleFieldPropertyChange(selectedField, 'text', e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                    />
-                  </div>
+                  {selectedFieldType === 'text' ? (
+                    // Text Field Properties
+                    <>
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Text</label>
+                        <input
+                          type="text"
+                          value={selectedFieldData.text}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'text', e.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="text-xs text-brand-100/80 mb-1 block">Font Size</label>
-                    <input
-                      type="number"
-                      value={selectedFieldData.fontSize}
-                      onChange={(e) => handleFieldPropertyChange(selectedField, 'fontSize', e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                      min="8"
-                      max="200"
-                    />
-                  </div>
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Font Size</label>
+                        <input
+                          type="number"
+                          value={selectedFieldData.fontSize}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'fontSize', e.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                          min="8"
+                          max="200"
+                        />
+                      </div>
 
-                  <div>
-                    <label className="text-xs text-brand-100/80 mb-1 block">Font Family</label>
-                    <select
-                      value={selectedFieldData.fontFamily}
-                      onChange={(e) => handleFieldPropertyChange(selectedField, 'fontFamily', e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                    >
-                      <option value="Arial">Arial</option>
-                      <option value="Times New Roman">Times New Roman</option>
-                      <option value="Courier New">Courier New</option>
-                      <option value="Georgia">Georgia</option>
-                      <option value="Verdana">Verdana</option>
-                      <option value="Helvetica">Helvetica</option>
-                    </select>
-                  </div>
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Font Family</label>
+                        <select
+                          value={selectedFieldData.fontFamily}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'fontFamily', e.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                        >
+                          <option value="Arial">Arial</option>
+                          <option value="Times New Roman">Times New Roman</option>
+                          <option value="Courier New">Courier New</option>
+                          <option value="Georgia">Georgia</option>
+                          <option value="Verdana">Verdana</option>
+                          <option value="Helvetica">Helvetica</option>
+                        </select>
+                      </div>
 
-                  <div>
-                    <label className="text-xs text-brand-100/80 mb-1 block">Text Color</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="color"
-                        value={selectedFieldData.fill}
-                        onChange={(e) => handleFieldPropertyChange(selectedField, 'fill', e.target.value)}
-                        className="h-10 w-16 rounded-lg border border-white/10 cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        value={selectedFieldData.fill}
-                        onChange={(e) => handleFieldPropertyChange(selectedField, 'fill', e.target.value)}
-                        className="flex-1 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
-                      />
-                    </div>
-                  </div>
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Text Color</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="color"
+                            value={selectedFieldData.fill}
+                            onChange={(e) => handleFieldPropertyChange(selectedField, 'fill', e.target.value)}
+                            className="h-10 w-16 rounded-lg border border-border cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={selectedFieldData.fill}
+                            onChange={(e) => handleFieldPropertyChange(selectedField, 'fill', e.target.value)}
+                            className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  ) : selectedFieldType === 'image' ? (
+                    // Image Field Properties
+                    <>
+                      <div className="mb-3">
+                        <img 
+                          src={selectedFieldData.imageData} 
+                          alt="Preview" 
+                          className="w-full h-32 object-contain rounded border border-border bg-charcoal"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Width (px)</label>
+                        <input
+                          type="number"
+                          value={selectedFieldData.width}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'width', e.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                          min="10"
+                          max="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Height (px)</label>
+                        <input
+                          type="number"
+                          value={selectedFieldData.height}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'height', e.target.value)}
+                          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                          min="10"
+                          max="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-textMuted mb-1 block">Opacity</label>
+                        <input
+                          type="range"
+                          value={selectedFieldData.opacity}
+                          onChange={(e) => handleFieldPropertyChange(selectedField, 'opacity', e.target.value)}
+                          className="w-full"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                        />
+                        <p className="text-xs text-center text-textMuted mt-1">{Math.round(selectedFieldData.opacity * 100)}%</p>
+                      </div>
+                    </>
+                  ) : null}
                 </div>
               )}
             </div>
 
             {/* Image Upload */}
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">
-              <h2 className="text-lg font-semibold">Background</h2>
-              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-white/20 bg-white/5 p-6 text-center cursor-pointer transition hover:border-brand-500/60 hover:bg-white/10">
+            <div className="rounded-xl border border-border bg-secondary p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-heading">Background</h2>
+              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card p-6 text-center cursor-pointer transition hover:border-accent hover:bg-secondary">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -623,20 +877,20 @@ const VisualCertificateEditor = () => {
                   className="hidden"
                   onChange={handleImageUpload}
                 />
-                <Upload className="h-8 w-8 text-brand-100/70" />
+                <Upload className="h-8 w-8 text-accent" />
                 <div>
-                  <p className="text-sm text-brand-100">Upload Template</p>
-                  <p className="text-xs text-brand-100/70">PNG, JPG up to 10MB</p>
+                  <p className="text-sm text-textPrimary">Upload Template</p>
+                  <p className="text-xs text-textMuted">PNG, JPG up to 10MB</p>
                 </div>
               </label>
               {backgroundImage && (
-                <p className="text-xs text-green-400">✓ Image loaded</p>
+                <p className="text-xs text-primary">✓ Image loaded</p>
               )}
             </div>
           </div>
 
           {/* Center - Canvas with draggable text overlays */}
-          <div className="rounded-2xl border border-white/10 bg-black/30 p-6">
+          <div className="rounded-xl border border-border bg-secondary p-6">
             <div className="bg-white rounded-lg p-4 overflow-auto" style={{ position: 'relative', minHeight: '794px' }}>
               <div
                 ref={editorRef}
@@ -644,6 +898,7 @@ const VisualCertificateEditor = () => {
                   // Clicking on empty canvas area should deselect any field
                   if (e.target === e.currentTarget) {
                     setSelectedField(null);
+                    setSelectedFieldType(null);
                   }
                 }}
                 style={{
@@ -667,10 +922,11 @@ const VisualCertificateEditor = () => {
                 {textFields.map((field) => (
                   <div
                     key={field.fieldKey}
-                    onMouseDown={(e) => handleFieldMouseDown(field.fieldKey, e)}
+                    onMouseDown={(e) => handleFieldMouseDown(field.fieldKey, 'text', e)}
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedField(field.fieldKey);
+                      setSelectedFieldType('text');
                     }}
                     style={{
                       position: 'absolute',
@@ -689,8 +945,8 @@ const VisualCertificateEditor = () => {
                           ? 'grabbing'
                           : 'grab',
                       border:
-                        selectedField === field.fieldKey
-                          ? '1px solid #3b82f6'
+                        selectedField === field.fieldKey && selectedFieldType === 'text'
+                          ? '2px solid #7CDE5A'
                           : '1px dashed transparent',
                       boxSizing: 'border-box',
                       padding: '2px',
@@ -703,19 +959,60 @@ const VisualCertificateEditor = () => {
                     {field.text}
                   </div>
                 ))}
+
+                {imageFields.map((field) => (
+                  <div
+                    key={field.fieldKey}
+                    onMouseDown={(e) => handleFieldMouseDown(field.fieldKey, 'image', e)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedField(field.fieldKey);
+                      setSelectedFieldType('image');
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: `${field.x}px`,
+                      top: `${field.y}px`,
+                      width: `${field.width}px`,
+                      height: `${field.height}px`,
+                      cursor:
+                        dragState && dragState.fieldKey === field.fieldKey
+                          ? 'grabbing'
+                          : 'grab',
+                      border:
+                        selectedField === field.fieldKey && selectedFieldType === 'image'
+                          ? '2px solid #7CDE5A'
+                          : '1px dashed rgba(124, 222, 90, 0.3)',
+                      boxSizing: 'border-box',
+                      opacity: field.opacity,
+                      userSelect: 'none',
+                    }}
+                  >
+                    <img
+                      src={field.imageData}
+                      alt="Logo"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
-            <p className="text-xs text-brand-100/70 mt-2 text-center">
+            <p className="text-xs text-textMuted mt-2 text-center">
               💡 Click a field to select, then drag it anywhere on the certificate
             </p>
           </div>
 
           {/* Right Panel - Excel Mapping */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">
-              <h2 className="text-lg font-semibold">Excel Data</h2>
+            <div className="rounded-xl border border-border bg-secondary p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-heading">Excel Data</h2>
               
-              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-white/20 bg-white/5 p-6 text-center cursor-pointer transition hover:border-brand-500/60 hover:bg-white/10">
+              <label className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-card p-6 text-center cursor-pointer transition hover:border-accent hover:bg-secondary">
                 <input
                   ref={excelInputRef}
                   type="file"
@@ -723,34 +1020,34 @@ const VisualCertificateEditor = () => {
                   className="hidden"
                   onChange={handleExcelUpload}
                 />
-                <FileSpreadsheet className="h-8 w-8 text-brand-100/70" />
+                <FileSpreadsheet className="h-8 w-8 text-accent" />
                 <div>
-                  <p className="text-sm text-brand-100">Upload Excel</p>
-                  <p className="text-xs text-brand-100/70">.xlsx, .xls, .csv</p>
+                  <p className="text-sm text-textPrimary">Upload Excel</p>
+                  <p className="text-xs text-textMuted">.xlsx, .xls, .csv</p>
                 </div>
               </label>
 
               {excelData && (
                 <div className="space-y-2">
-                  <p className="text-sm text-green-400">
+                  <p className="text-sm text-primary">
                     ✓ {excelData.length} rows loaded
                   </p>
-                  <p className="text-xs text-brand-100/70">
+                  <p className="text-xs text-textMuted">
                     Max 400 rows per batch
                   </p>
                 </div>
               )}
 
               {excelColumns.length > 0 && textFields.length > 0 && (
-                <div className="space-y-3 pt-4 border-t border-white/10">
-                  <h3 className="text-sm font-semibold">Field Mapping</h3>
-                  <p className="text-xs text-brand-100/70">
+                <div className="space-y-3 pt-4 border-t border-border">
+                  <h3 className="text-sm font-semibold text-heading">Field Mapping</h3>
+                  <p className="text-xs text-textMuted">
                     Map each field to an Excel column
                   </p>
                   
                   {textFields.map((field) => (
                     <div key={field.fieldKey} className="space-y-1">
-                      <label className="text-xs text-brand-100/80">
+                      <label className="text-xs text-textMuted">
                         {field.fieldKey.replace('field_', 'Field ')}
                       </label>
                       <select
@@ -761,11 +1058,11 @@ const VisualCertificateEditor = () => {
                             [field.fieldKey]: e.target.value,
                           }));
                         }}
-                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white"
+                        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
                       >
                         <option value="">-- Select Column --</option>
                         {excelColumns.map((col) => (
-                          <option key={col} value={col} className="bg-black">
+                          <option key={col} value={col} className="bg-charcoal">
                             {col}
                           </option>
                         ))}
@@ -779,11 +1076,11 @@ const VisualCertificateEditor = () => {
                 <button
                   onClick={handleGenerateCertificates}
                   disabled={isGenerating || excelData.length > 400}
-                  className="w-full rounded-lg border border-emerald-400/60 bg-emerald-500/20 px-4 py-3 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
+                  className="w-full rounded-lg border border-primary bg-primary px-4 py-3 text-sm font-semibold text-charcoal transition hover:bg-primaryHover disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="animate-spin h-4 w-4 border-2 border-emerald-100 border-t-transparent rounded-full" />
+                      <div className="animate-spin h-4 w-4 border-2 border-charcoal border-t-transparent rounded-full" />
                       Generating... {generationProgress}%
                     </>
                   ) : (
@@ -797,6 +1094,9 @@ const VisualCertificateEditor = () => {
             </div>
           </div>
         </div>
+
+        {/* Image Handler Component */}
+        <ImageHandler onImageAdd={(imageData) => console.log('Image added:', imageData)} />
       </div>
     </div>
   );

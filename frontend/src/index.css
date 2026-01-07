@@ -8,10 +8,177 @@
   color-scheme: dark;
 }
 
+/* =============================================
+   DARK SPORTS-TECH COLOR THEME
+   ============================================= */
+
+/* Global Background */
 body {
-  @apply font-display bg-surface text-white min-h-screen antialiased;
+  @apply font-display antialiased;
+  background-color: #0F1216;
+  color: #E6EAF0;
+  min-height: 100vh;
 }
 
-a {
-  @apply text-brand-500 underline-offset-4 hover:text-brand-100;
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: #FFFFFF;
+  font-weight: 700;
+}
+
+.text-primary {
+  color: #E6EAF0;
+}
+
+.text-secondary {
+  color: #B0B7C3;
+}
+
+.text-muted {
+  color: #7A808A;
+}
+
+/* Cards & Containers */
+.card, .container {
+  background-color: #1B2026;
+  border: 1px solid #2A3038;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: all 150ms ease-in-out;
+}
+
+.card:hover, .container:hover {
+  background-color: #222831;
+}
+
+/* Buttons - Primary (Neon Green) */
+.btn-primary, .button-primary {
+  background-color: #7CDE5A;
+  color: #0F1216;
+  font-weight: bold;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  transition: all 200ms ease-in-out;
+  border: none;
+}
+
+.btn-primary:hover, .button-primary:hover {
+  background-color: #8FEA4A;
+  transform: scale(1.02);
+}
+
+/* Buttons - Secondary (Teal Border) */
+.btn-secondary, .button-secondary {
+  background-color: #151A1F;
+  border: 1px solid #00B3A4;
+  color: #00B3A4;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 200ms ease-in-out;
+}
+
+.btn-secondary:hover, .button-secondary:hover {
+  background-color: #00C2B8;
+  color: #FFFFFF;
+  border-color: #00C2B8;
+}
+
+/* Links & Tabs */
+.link, .tab-highlight {
+  color: #00B3A4;
+  transition: color 200ms ease-in-out;
+  text-decoration: none;
+}
+
+.link:hover, .tab-highlight:hover {
+  color: #00C2B8;
+}
+
+/* Active Tab */
+.tab-active {
+  color: #FFFFFF;
+  border-bottom: 2px solid #7CDE5A;
+  font-weight: 600;
+}
+
+.tab-inactive {
+  color: #7A808A;
+  transition: color 200ms ease-in-out;
+}
+
+.tab-inactive:hover {
+  color: #B0B7C3;
+}
+
+/* Badges & Status Indicators */
+.badge {
+  background-color: #00B3A4;
+  color: #FFFFFF;
+  border-radius: 999px;
+  padding: 0.5em 1em;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Forms & Inputs */
+input, textarea, select {
+  background-color: #151A1F;
+  border: 1px solid #2A3038;
+  color: #E6EAF0;
+  border-radius: 10px;
+  padding: 0.75rem;
+  transition: all 200ms ease-in-out;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #7CDE5A;
+  outline: none;
+  background-color: #1B2026;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #7A808A;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #1B2026;
+  border: 1px solid #2A3038;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.navbar a {
+  color: #00B3A4;
+  font-weight: 600;
+  transition: color 200ms ease-in-out;
+}
+
+.navbar a:hover {
+  color: #00C2B8;
+}
+
+/* Smooth Transitions */
+* {
+  transition-timing-function: ease-in-out;
+}
+
+/* Scrollbar Styling (optional) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #151A1F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2A3038;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00B3A4;
 }

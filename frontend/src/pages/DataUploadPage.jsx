@@ -160,70 +160,70 @@ const DataUploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface via-[#0b1f24] to-[#041014] text-white">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,183,181,0.22),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(1,135,144,0.18),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,84,97,0.28),transparent_25%)]" />
+    <div className="min-h-screen bg-charcoal text-textPrimary">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(0,179,164,0.12),transparent_25%),radial-gradient(circle_at_80%_0%,rgba(124,222,90,0.08),transparent_20%),radial-gradient(circle_at_60%_80%,rgba(0,179,164,0.15),transparent_25%)]" />
       <div className="relative z-10 mx-auto max-w-7xl px-6 py-10 space-y-10">
         <Navbar />
 
         <section className="space-y-4">
-          <p className="text-sm uppercase tracking-[0.35em] text-brand-100/80">Data Workspace</p>
-          <h1 className="text-3xl font-bold sm:text-4xl">Manage recipient data for dynamic certificates</h1>
-          <p className="max-w-2xl text-brand-100/80">
+          <p className="text-sm uppercase tracking-[0.35em] text-textMuted">Data Workspace</p>
+          <h1 className="text-3xl font-bold sm:text-4xl text-heading">Manage recipient data for dynamic certificates</h1>
+          <p className="max-w-2xl text-textSecondary">
             Upload an Excel or CSV file with your participants. The data is stored locally in your browser and can be
             used later to generate multiple certificates in one go.
           </p>
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-brand-900/30 backdrop-blur-xl">
+        <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr] rounded-xl border border-border bg-card p-8 shadow-glow backdrop-blur-xl">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-500/20 text-brand-100">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/20 text-accent">
                 <Upload className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm uppercase tracking-[0.3em] text-brand-100/80">Bulk Data</p>
-                <h3 className="text-2xl font-semibold">Upload Excel to store recipients</h3>
+                <p className="text-sm uppercase tracking-[0.3em] text-textMuted">Bulk Data</p>
+                <h3 className="text-2xl font-semibold text-heading">Upload Excel to store recipients</h3>
               </div>
             </div>
-            <p className="text-brand-100/80">
-              Use columns like <span className="font-semibold text-white">Name</span>,{' '}
-              <span className="font-semibold text-white">Email</span>, <span className="font-semibold text-white">Course</span>,{' '}
-              <span className="font-semibold text-white">Date</span> or anything your certificates need.
+            <p className="text-textSecondary">
+              Use columns like <span className="font-semibold text-heading">Name</span>,{' '}
+              <span className="font-semibold text-heading">Email</span>, <span className="font-semibold text-heading">Course</span>,{' '}
+              <span className="font-semibold text-heading">Date</span> or anything your certificates need.
             </p>
 
-            <label className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/20 bg-black/30 p-6 text-center transition hover:border-brand-500/60 hover:bg-black/20">
+            <label className="flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-secondary p-6 text-center transition hover:border-accent hover:bg-card">
               <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileUpload} />
               <div className="flex items-center gap-3">
-                <span className="rounded-full bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-100">
+                <span className="rounded-full bg-accent/20 px-3 py-1 text-xs font-semibold text-accent">
                   {fileName || 'Choose file'}
                 </span>
               </div>
-              <p className="text-sm text-brand-100/80">Drop or select a spreadsheet to load recipients</p>
-              <div className="flex gap-3 text-xs text-brand-100/70">
-                <span className="rounded-full bg-white/5 px-3 py-1 border border-white/10">Accepted: .xlsx, .xls, .csv</span>
-                <span className="rounded-full bg-white/5 px-3 py-1 border border-white/10">Local only • No upload</span>
+              <p className="text-sm text-textSecondary">Drop or select a spreadsheet to load recipients</p>
+              <div className="flex gap-3 text-xs text-textMuted">
+                <span className="rounded-full bg-secondary px-3 py-1 border border-border">Accepted: .xlsx, .xls, .csv</span>
+                <span className="rounded-full bg-secondary px-3 py-1 border border-border">Local only • No upload</span>
               </div>
             </label>
 
-            {uploadError && <p className="text-sm text-red-300">{uploadError}</p>}
+            {uploadError && <p className="text-sm text-red-400">{uploadError}</p>}
 
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-sm">
-                <Database className="h-4 w-4 text-brand-100" />
-                <span className="text-brand-100">Stored rows: {records.length}</span>
+              <div className="flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm">
+                <Database className="h-4 w-4 text-accent" />
+                <span className="text-textSecondary">Stored rows: {records.length}</span>
               </div>
               {records.length > 0 && (
                 <>
                   <button
                     onClick={handleGenerateCertificates}
                     disabled={isGenerating}
-                    className="inline-flex items-center gap-2 rounded-xl border border-emerald-400/60 bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 rounded-xl border border-primary bg-primary/20 px-4 py-2 text-sm font-semibold text-charcoal transition hover:bg-primary disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isGenerating ? 'Generating ZIP…' : 'Generate certificates ZIP'}
                   </button>
                   <button
                     onClick={handleClear}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-brand-100 transition hover:border-red-400 hover:text-white"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm text-textSecondary transition hover:border-red-400 hover:text-red-400"
                   >
                     <Trash2 className="h-4 w-4" />
                     Clear stored data
@@ -232,23 +232,23 @@ const DataUploadPage = () => {
               )}
             </div>
 
-            {generateError && <p className="text-sm text-red-300">{generateError}</p>}
+            {generateError && <p className="text-sm text-red-400">{generateError}</p>}
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-black/30 p-6 space-y-4">
+          <div className="rounded-xl border border-border bg-secondary p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-brand-100/70">Preview</p>
-                <h4 className="text-xl font-semibold">First rows in local storage</h4>
+                <p className="text-sm uppercase tracking-[0.2em] text-textMuted">Preview</p>
+                <h4 className="text-xl font-semibold text-heading">First rows in local storage</h4>
               </div>
-              <span className="rounded-full bg-brand-500/20 px-3 py-1 text-xs text-brand-100">Readonly</span>
+              <span className="rounded-full bg-accent/20 px-3 py-1 text-xs text-accent">Readonly</span>
             </div>
             {records.length === 0 ? (
-              <p className="text-sm text-brand-100/70">No data stored yet. Upload a sheet to see a preview.</p>
+              <p className="text-sm text-textMuted">No data stored yet. Upload a sheet to see a preview.</p>
             ) : (
-              <div className="overflow-auto rounded-xl border border-white/10 bg-white/5">
+              <div className="overflow-auto rounded-xl border border-border bg-card">
                 <table className="min-w-full text-sm">
-                  <thead className="bg-white/5 text-brand-100/80">
+                  <thead className="bg-secondary text-textMuted">
                     <tr>
                       {Object.keys(records[0]).map((key) => (
                         <th key={key} className="px-3 py-2 text-left font-semibold capitalize">
@@ -259,17 +259,17 @@ const DataUploadPage = () => {
                   </thead>
                   <tbody>
                     {records.slice(0, 5).map((row, rowIndex) => (
-                      <tr key={rowIndex} className="border-t border-white/5 hover:bg-white/5">
+                      <tr key={rowIndex} className="border-t border-border hover:bg-secondary">
                         {Object.keys(records[0]).map((key) => (
-                          <td key={key} className="px-3 py-2 text-brand-100/90">
+                          <td key={key} className="px-3 py-2 text-textSecondary">
                             {row[key]}
                           </td>
                         ))}
                       </tr>
                     ))}
                     {records.length > 5 && (
-                      <tr className="border-t border-white/5">
-                        <td colSpan={Object.keys(records[0]).length} className="px-3 py-2 text-right text-brand-100/70">
+                      <tr className="border-t border-border">
+                        <td colSpan={Object.keys(records[0]).length} className="px-3 py-2 text-right text-textMuted">
                           +{records.length - 5} more rows stored
                         </td>
                       </tr>
@@ -278,8 +278,8 @@ const DataUploadPage = () => {
                 </table>
               </div>
             )}
-            <p className="text-xs text-brand-100/70">
-              Data is saved locally in your browser under the key <span className="font-mono text-white">certificateRecipients</span>.
+            <p className="text-xs text-textMuted">
+              Data is saved locally in your browser under the key <span className="font-mono text-heading">certificateRecipients</span>.
               You can plug this into your certificate generation flow to iterate and render/export each recipient.
             </p>
           </div>
@@ -287,7 +287,7 @@ const DataUploadPage = () => {
 
         {/* Template Customization Section - Separate Row */}
         {records.length > 0 && (
-          <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl shadow-brand-900/30 backdrop-blur-xl">
+          <section className="rounded-xl border border-border bg-card p-8 shadow-glow backdrop-blur-xl">
             <TemplateCustomizer onCustomizationChange={setCustomization} />
           </section>
         )}
