@@ -122,6 +122,9 @@ const VisualCertificateEditor = () => {
       fontFamily: 'Arial',
       fill: '#000000',
       text: 'Enter text',
+      bold: false,
+      italic: false,
+      underline: false,
     };
     setTextFields((prev) => [...prev, newField]);
     setSelectedField(fieldKey);
@@ -335,11 +338,6 @@ const VisualCertificateEditor = () => {
       return;
     }
 
-    if (excelData.length > 400) {
-      alert('Maximum 400 certificates per batch. Please reduce your Excel data.');
-      return;
-    }
-
     setIsGenerating(true);
     setGenerationProgress(0);
 
@@ -437,17 +435,43 @@ const VisualCertificateEditor = () => {
 
             ctx.save();
             ctx.fillStyle = field.fill || '#000000';
-            ctx.font = `${field.fontSize || 24}px ${field.fontFamily || 'Arial'}`;
-            ctx.textBaseline = 'top';
+            
+            // Build font string with bold and italic
+            let fontStyle = '';
+            if (field.bold) fontStyle += 'bold ';
+            if (field.italic) fontStyle += 'italic ';
+            ctx.font = `${fontStyle}${field.fontSize || 24}px ${field.fontFamily || 'Arial'}`;
+            ctx.textAlign = 'center'; // Center text horizontally
+            ctx.textBaseline = 'middle'; // Center text vertically
 
             const maxWidth = field.width || 200;
             const lineHeight = (field.fontSize || 24) * 1.2;
             const lines = wrapText(ctx, text, maxWidth, lineHeight);
 
-            let currentY = field.y;
-            lines.forEach((line) => {
-              ctx.fillText(line, field.x, currentY);
-              currentY += lineHeight;
+            // Calculate center position
+            const fieldCenterX = field.x + (field.width || 200) / 2;
+            const totalTextHeight = lines.length * lineHeight;
+            const fieldCenterY = field.y + (field.height || 30) / 2;
+            
+            // Start Y position to center all lines vertically
+            const startY = fieldCenterY - (totalTextHeight / 2) + (lineHeight / 2);
+
+            lines.forEach((line, index) => {
+              const lineY = startY + (index * lineHeight);
+              ctx.fillText(line, fieldCenterX, lineY);
+              
+              // Draw underline if enabled
+              if (field.underline) {
+              const metrics = ctx.measureText(line);
+              const textWidth = metrics.width;
+              const underlineY = lineY + (field.fontSize || 24) * 0.3; // Position underline below text
+              ctx.strokeStyle = field.fill || '#000000';
+              ctx.lineWidth = Math.max(1, (field.fontSize || 24) * 0.05); // Underline thickness
+              ctx.beginPath();
+              ctx.moveTo(fieldCenterX - textWidth / 2, underlineY);
+              ctx.lineTo(fieldCenterX + textWidth / 2, underlineY);
+              ctx.stroke();
+              }
             });
 
             ctx.restore();
@@ -811,6 +835,100 @@ const VisualCertificateEditor = () => {
                           />
                         </div>
                       </div>
+
+                      <div>
+                        <label className="text-xs text-textMuted mb-2 block">Text Style</label>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleFieldPropertyChange(selectedField, 'bold', !selectedFieldData.bold)}
+                            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                              selectedFieldData.bold
+                                ? 'border-primary bg-primary/20 text-primary'
+                                : 'border-border bg-card text-textPrimary hover:border-primary/60'
+                            }`}
+                          >
+                            <span className="font-bold">B</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleFieldPropertyChange(selectedField, 'italic', !selectedFieldData.italic)}
+                            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                              selectedFieldData.italic
+                                ? 'border-primary bg-primary/20 text-primary'
+                                : 'border-border bg-card text-textPrimary hover:border-primary/60'
+                            }`}
+                          >
+                            <span className="italic">I</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleFieldPropertyChange(selectedField, 'underline', !selectedFieldData.underline)}
+                            className={`flex-1 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                              selectedFieldData.underline
+                                ? 'border-primary bg-primary/20 text-primary'
+                                : 'border-border bg-card text-textPrimary hover:border-primary/60'
+                            }`}
+                          >
+                            <span className="underline">U</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-border">
+                        <h4 className="text-xs font-semibold text-textMuted mb-2">Size & Position</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-xs text-textMuted mb-1 block">Width (px)</label>
+                            <input
+                              type="number"
+                              value={selectedFieldData.width}
+                              onChange={(e) => handleFieldPropertyChange(selectedField, 'width', e.target.value)}
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                              min="50"
+                              max="1123"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-textMuted mb-1 block">Height (px)</label>
+                            <input
+                              type="number"
+                              value={selectedFieldData.height}
+                              onChange={(e) => handleFieldPropertyChange(selectedField, 'height', e.target.value)}
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                              min="20"
+                              max="794"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <div>
+                            <label className="text-xs text-textMuted mb-1 block">X Position (px)</label>
+                            <input
+                              type="number"
+                              value={selectedFieldData.x}
+                              onChange={(e) => handleFieldPropertyChange(selectedField, 'x', e.target.value)}
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                              min="0"
+                              max="1123"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs text-textMuted mb-1 block">Y Position (px)</label>
+                            <input
+                              type="number"
+                              value={selectedFieldData.y}
+                              onChange={(e) => handleFieldPropertyChange(selectedField, 'y', e.target.value)}
+                              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-textPrimary focus:border-primary"
+                              min="0"
+                              max="794"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-textMuted mt-2">
+                          💡 You can also drag fields on the canvas to reposition them
+                        </p>
+                      </div>
                     </>
                   ) : selectedFieldType === 'image' ? (
                     // Image Field Properties
@@ -940,6 +1058,9 @@ const VisualCertificateEditor = () => {
                       fontSize: `${field.fontSize}px`,
                       fontFamily: field.fontFamily,
                       color: field.fill,
+                      fontWeight: field.bold ? 'bold' : 'normal',
+                      fontStyle: field.italic ? 'italic' : 'normal',
+                      textDecoration: field.underline ? 'underline' : 'none',
                       cursor:
                         dragState && dragState.fieldKey === field.fieldKey
                           ? 'grabbing'
@@ -1032,9 +1153,6 @@ const VisualCertificateEditor = () => {
                   <p className="text-sm text-primary">
                     ✓ {excelData.length} rows loaded
                   </p>
-                  <p className="text-xs text-textMuted">
-                    Max 400 rows per batch
-                  </p>
                 </div>
               )}
 
@@ -1075,7 +1193,7 @@ const VisualCertificateEditor = () => {
               {excelData && textFields.length > 0 && Object.keys(fieldMappings).some(k => fieldMappings[k]) && (
                 <button
                   onClick={handleGenerateCertificates}
-                  disabled={isGenerating || excelData.length > 400}
+                  disabled={isGenerating}
                   className="w-full rounded-lg border border-primary bg-primary px-4 py-3 text-sm font-semibold text-charcoal transition hover:bg-primaryHover disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
                 >
                   {isGenerating ? (
